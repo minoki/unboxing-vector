@@ -1,5 +1,5 @@
 module Data.Vector.UnboxedWrapper.Mutable
-  (Wrapper(..)
+  (Unboxable(..)
   ,MVector
   ,module GM
   ) where
