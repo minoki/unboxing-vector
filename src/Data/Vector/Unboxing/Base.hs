@@ -7,7 +7,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DefaultSignatures #-}
-module Data.Vector.UnboxedWrapper.Base
+module Data.Vector.Unboxing.Base
   (Unboxable(Underlying) -- coercion is not exported
   ,Vector(UWVector)
   ,MVector(UWMVector)

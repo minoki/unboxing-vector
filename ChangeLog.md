@@ -1,3 +1,3 @@
-# Changelog for vector-unboxed-wrapper
+# Changelog for unboxing-vector
 
 ## Unreleased changes

@@ -6,7 +6,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 module Main where
-import qualified Data.Vector.UnboxedWrapper as V
+import qualified Data.Vector.Unboxing as V
 import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
 import qualified Data.Vector.Unboxed as U

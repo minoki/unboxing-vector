@@ -1,4 +1,4 @@
-module Data.Vector.UnboxedWrapper
+module Data.Vector.Unboxing
   (Unboxable(..)
   ,Vector
   ,module Data.Vector.Generic -- TODO
@@ -7,4 +7,4 @@ module Data.Vector.UnboxedWrapper
   ,vectorCoercion
   ) where
 import Data.Vector.Generic hiding (Vector)
-import Data.Vector.UnboxedWrapper.Base
+import Data.Vector.Unboxing.Base

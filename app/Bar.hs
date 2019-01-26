@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Bar (Bar,mkBarVec,Baz,mkBaz) where
 import Data.Int
-import qualified Data.Vector.UnboxedWrapper as V
+import qualified Data.Vector.Unboxing as V
 
 newtype Bar = Bar Int64 deriving (Show)
 instance V.Unboxable Bar where
