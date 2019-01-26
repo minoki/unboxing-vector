@@ -12,6 +12,8 @@ module Data.Vector.UnboxedWrapper.Base
   ,Vector(UWVector)
   ,MVector(UWMVector)
   ,coerceVector
+  ,liftCoercion
+  ,vectorCoercion
   ) where
 import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
@@ -42,6 +44,99 @@ class (U.Unbox (Underlying a) {-, Coercible a (Underlying a) -}) => Unboxable a 
   default coercion :: Coercible a (Underlying a) => Coercion a (Underlying a)
   coercion = Coercion
   {-# INLINE coercion #-}
+
+-- This is not possible:
+-- type role Vector representational
+
+newtype Vector a = UWVector (U.Vector (Underlying a))
+newtype MVector s a = UWMVector (UM.MVector s (Underlying a))
+
+type instance G.Mutable Vector = MVector
+
+-- Coercible a b is not strictly necessary in this function, but the data constructors should be visible on the call site.
+coerceVector :: (Coercible a b, Underlying a ~ Underlying b) => Vector a -> Vector b
+coerceVector = coerce
+{-# INLINE coerceVector #-}
+
+liftCoercion :: (Underlying a ~ Underlying b) => Coercion a b -> Coercion (Vector a) (Vector b)
+liftCoercion Coercion = Coercion
+{-# INLINE liftCoercion #-}
+
+vectorCoercion :: (Coercible a b, Underlying a ~ Underlying b) => Coercion (Vector a) (Vector b)
+vectorCoercion = Coercion
+{-# INLINE vectorCoercion #-}
+
+-- This is not possible:
+-- instance (Coercible a b, Underlying a ~ Underlying b) => Coercible (Vector a) (Vector b)
+
+instance (Unboxable a) => IsList (Vector a) where
+  type Item (Vector a) = a
+  fromList xs         = case coercion @ a of Coercion -> UWVector (fromList (coerce xs))
+  fromListN n xs      = case coercion @ a of Coercion -> UWVector (fromListN n (coerce xs))
+  toList (UWVector v) = case coercion @ a of Coercion -> coerce (toList v)
+  -- toList = case coercion @ a of Coercion -> coerce (toList :: U.Vector (Underlying a) -> [Underlying a]) -- which is better?
+
+instance (Eq a, Unboxable a) => Eq (Vector a) where
+  xs == ys = Bundle.eq (G.stream xs) (G.stream ys)
+  xs /= ys = not (Bundle.eq (G.stream xs) (G.stream ys))
+
+instance (Ord a, Unboxable a) => Ord (Vector a) where
+  compare xs ys = Bundle.cmp (G.stream xs) (G.stream ys)
+
+instance (Show a, Unboxable a) => Show (Vector a) where
+  showsPrec = G.showsPrec
+
+instance (Read a, Unboxable a) => Read (Vector a) where
+  readPrec = G.readPrec
+  readListPrec = readListPrecDefault
+
+instance (Unboxable a) => Semigroup (Vector a) where
+  (<>) = (G.++)
+  sconcat = G.concatNE
+
+instance (Unboxable a) => Monoid (Vector a) where
+  mempty = G.empty
+  mappend = (<>)
+  mconcat = G.concat
+
+instance NFData (Vector a) where
+  rnf !_ = () -- the content is unboxed
+
+-- Is it okay with this?
+instance (Data a, Unboxable a) => Data (Vector a) where
+  gfoldl       = G.gfoldl
+  toConstr _   = error "toConstr"
+  gunfold _ _  = error "gunfold"
+  dataTypeOf _ = G.mkType "Data.Vector.UnboxedUnboxable.Vector"
+  dataCast1    = G.dataCast
+
+instance (Unboxable a) => GM.MVector MVector a where
+  basicLength (UWMVector mv)                     = GM.basicLength mv
+  basicUnsafeSlice i l (UWMVector mv)            = UWMVector (GM.basicUnsafeSlice i l mv)
+  basicOverlaps (UWMVector mv) (UWMVector mv')   = GM.basicOverlaps mv mv'
+  basicUnsafeNew l                               = UWMVector <$> GM.basicUnsafeNew l
+  basicInitialize (UWMVector mv)                 = GM.basicInitialize mv
+  basicUnsafeReplicate i x                       = case coercion @ a of Coercion -> UWMVector <$> GM.basicUnsafeReplicate i (coerce x)
+  basicUnsafeRead (UWMVector mv) i               = case coercion @ a of Coercion -> coerce <$> GM.basicUnsafeRead mv i
+  basicUnsafeWrite (UWMVector mv) i x            = case coercion @ a of Coercion -> GM.basicUnsafeWrite mv i (coerce x)
+  basicClear (UWMVector mv)                      = GM.basicClear mv
+  basicSet (UWMVector mv) x                      = case coercion @ a of Coercion -> GM.basicSet mv (coerce x)
+  basicUnsafeCopy (UWMVector mv) (UWMVector mv') = GM.basicUnsafeCopy mv mv'
+  basicUnsafeMove (UWMVector mv) (UWMVector mv') = GM.basicUnsafeMove mv mv'
+  basicUnsafeGrow (UWMVector mv) n               = UWMVector <$> GM.basicUnsafeGrow mv n
+
+instance (Unboxable a) => G.Vector Vector a where
+  basicUnsafeFreeze (UWMVector mv)            = UWVector <$> G.basicUnsafeFreeze mv
+  basicUnsafeThaw (UWVector v)                = UWMVector <$> G.basicUnsafeThaw v
+  basicLength (UWVector v)                    = G.basicLength v
+  basicUnsafeSlice i l (UWVector v)           = UWVector (G.basicUnsafeSlice i l v)
+  basicUnsafeIndexM (UWVector v) i            = case coercion @ a of Coercion -> coerce <$> G.basicUnsafeIndexM v i
+  basicUnsafeCopy (UWMVector mv) (UWVector v) = G.basicUnsafeCopy mv v
+  elemseq (UWVector v) x y                    = case coercion @ a of Coercion -> G.elemseq v (coerce x) y
+
+-----
+
+-- Unboxable instances
 
 instance Unboxable Bool where   type Underlying Bool = Bool
 instance Unboxable Char where   type Underlying Char = Char
@@ -169,77 +264,3 @@ instance (Unboxable a) => Unboxable (Data.Ord.Down a) where
   type Underlying (Data.Ord.Down a) = Underlying a
   coercion = case coercion @ a of Coercion -> Coercion
   {-# INLINE coercion #-}
-
-newtype Vector a = UWVector (U.Vector (Underlying a))
-newtype MVector s a = UWMVector (UM.MVector s (Underlying a))
-
-type instance G.Mutable Vector = MVector
-
--- Coercible a b is not strictly necessary in this function, but the data constructors should be visible on the call site.
-coerceVector :: (Coercible a b, Underlying a ~ Underlying b) => Vector a -> Vector b
-coerceVector = coerce
-{-# INLINE coerceVector #-}
-
-instance (Unboxable a) => IsList (Vector a) where
-  type Item (Vector a) = a
-  fromList xs         = case coercion @ a of Coercion -> UWVector (fromList (coerce xs))
-  fromListN n xs      = case coercion @ a of Coercion -> UWVector (fromListN n (coerce xs))
-  toList (UWVector v) = case coercion @ a of Coercion -> coerce (toList v)
-
-instance (Eq a, Unboxable a) => Eq (Vector a) where
-  xs == ys = Bundle.eq (G.stream xs) (G.stream ys)
-  xs /= ys = not (Bundle.eq (G.stream xs) (G.stream ys))
-
-instance (Ord a, Unboxable a) => Ord (Vector a) where
-  compare xs ys = Bundle.cmp (G.stream xs) (G.stream ys)
-
-instance (Show a, Unboxable a) => Show (Vector a) where
-  showsPrec = G.showsPrec
-
-instance (Read a, Unboxable a) => Read (Vector a) where
-  readPrec = G.readPrec
-  readListPrec = readListPrecDefault
-
-instance (Unboxable a) => Semigroup (Vector a) where
-  (<>) = (G.++)
-  sconcat = G.concatNE
-
-instance (Unboxable a) => Monoid (Vector a) where
-  mempty = G.empty
-  mappend = (<>)
-  mconcat = G.concat
-
-instance NFData (Vector a) where
-  rnf !_ = () -- the content is unboxed
-
--- Is it okay with this?
-instance (Data a, Unboxable a) => Data (Vector a) where
-  gfoldl       = G.gfoldl
-  toConstr _   = error "toConstr"
-  gunfold _ _  = error "gunfold"
-  dataTypeOf _ = G.mkType "Data.Vector.UnboxedUnboxable.Vector"
-  dataCast1    = G.dataCast
-
-instance (Unboxable a) => GM.MVector MVector a where
-  basicLength (UWMVector mv)                     = GM.basicLength mv
-  basicUnsafeSlice i l (UWMVector mv)            = UWMVector (GM.basicUnsafeSlice i l mv)
-  basicOverlaps (UWMVector mv) (UWMVector mv')   = GM.basicOverlaps mv mv'
-  basicUnsafeNew l                               = UWMVector <$> GM.basicUnsafeNew l
-  basicInitialize (UWMVector mv)                 = GM.basicInitialize mv
-  basicUnsafeReplicate i x                       = case coercion @ a of Coercion -> UWMVector <$> GM.basicUnsafeReplicate i (coerce x)
-  basicUnsafeRead (UWMVector mv) i               = case coercion @ a of Coercion -> coerce <$> GM.basicUnsafeRead mv i
-  basicUnsafeWrite (UWMVector mv) i x            = case coercion @ a of Coercion -> GM.basicUnsafeWrite mv i (coerce x)
-  basicClear (UWMVector mv)                      = GM.basicClear mv
-  basicSet (UWMVector mv) x                      = case coercion @ a of Coercion -> GM.basicSet mv (coerce x)
-  basicUnsafeCopy (UWMVector mv) (UWMVector mv') = GM.basicUnsafeCopy mv mv'
-  basicUnsafeMove (UWMVector mv) (UWMVector mv') = GM.basicUnsafeMove mv mv'
-  basicUnsafeGrow (UWMVector mv) n               = UWMVector <$> GM.basicUnsafeGrow mv n
-
-instance (Unboxable a) => G.Vector Vector a where
-  basicUnsafeFreeze (UWMVector mv)            = UWVector <$> G.basicUnsafeFreeze mv
-  basicUnsafeThaw (UWVector v)                = UWMVector <$> G.basicUnsafeThaw v
-  basicLength (UWVector v)                    = G.basicLength v
-  basicUnsafeSlice i l (UWVector v)           = UWVector (G.basicUnsafeSlice i l v)
-  basicUnsafeIndexM (UWVector v) i            = case coercion @ a of Coercion -> coerce <$> G.basicUnsafeIndexM v i
-  basicUnsafeCopy (UWMVector mv) (UWVector v) = G.basicUnsafeCopy mv v
-  elemseq (UWVector v) x y                    = case coercion @ a of Coercion -> G.elemseq v (coerce x) y

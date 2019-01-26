@@ -13,6 +13,8 @@ import qualified Data.Vector.Unboxed as U
 import qualified Data.Vector.Unboxed.Mutable as UM
 import Data.Int
 import Data.Coerce
+import Data.Type.Coercion
+import Data.Ord
 import Bar
 
 newtype Foo = Foo Int64
@@ -66,6 +68,10 @@ main :: IO ()
 main = do
   print (V.generate 10 (\i -> Foo (fromIntegral i)) :: V.Vector Foo)
   print (V.coerceVector (V.generate 10 (\i -> Foo (fromIntegral i)) :: V.Vector Foo) :: V.Vector Int64)
+  print ((case V.liftCoercion (Coercion :: Coercion Foo Int64) of
+           Coercion -> coerce [V.generate 10 (\i -> Foo (fromIntegral i)) :: V.Vector Foo]) :: [V.Vector Int64])
+  print ((case V.vectorCoercion :: Coercion (V.Vector Foo) (V.Vector Int64) of
+           Coercion -> coerce (Just (V.generate 10 (\i -> Foo (fromIntegral i)) :: V.Vector Foo))) :: Maybe (V.Vector Int64))
   -- print (U.generate 10 (\i -> Foo (fromIntegral i)) :: U.Vector Foo)
   -- print (coerce (U.generate 10 (\i -> Foo (fromIntegral i)) :: U.Vector Foo) :: U.Vector Int64)
   print mkBarVec
@@ -73,3 +79,11 @@ main = do
   -- print (getInt64Val $ V.head mkBarVec)
   -- print (coerce (V.head mkBarVec) :: Int64)
   -- print (V.singleton (mkBaz 42))
+  let v = V.fromList [1,2,7] :: V.Vector Int
+  let w = V.fromList [2,-3,7] :: V.Vector Int
+  print (compare v w)
+  print (compare (V.coerceVector v :: V.Vector (Down Int)) (V.coerceVector w))
+  let v = U.fromList [1,2,7] :: U.Vector Int
+  let w = U.fromList [2,-3,7] :: U.Vector Int
+  print (compare v w)
+  -- print (compare (coerce v :: U.Vector (Down Int)) (coerce w))

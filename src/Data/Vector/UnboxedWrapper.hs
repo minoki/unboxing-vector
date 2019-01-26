@@ -3,6 +3,8 @@ module Data.Vector.UnboxedWrapper
   ,Vector
   ,module Data.Vector.Generic -- TODO
   ,coerceVector
+  ,liftCoercion
+  ,vectorCoercion
   ) where
 import Data.Vector.Generic hiding (Vector)
 import Data.Vector.UnboxedWrapper.Base
