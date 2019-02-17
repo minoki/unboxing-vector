@@ -12,7 +12,7 @@ newtype Foo = Foo Int
 generate 10 (\i -> Foo i) :: Vector Foo
 ```
 
-With plain `Data.Vector.Unboxed`, you either write two dozen of lines of code to get it work, or resort to Template Haskell ([`vector-th-unbox` package](http://hackage.haskell.org/package/vector-th-unbox)).
+With plain `Data.Vector.Unboxed`, you either write two dozen of lines of code to get it work (the exact code is [here](test/Foo.hs)), or resort to Template Haskell ([`vector-th-unbox` package](http://hackage.haskell.org/package/vector-th-unbox)).
 
 But with `Data.Vector.Unboxing`, the code you write is just two lines:
 
