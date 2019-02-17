@@ -25,11 +25,11 @@ dependencies:
 - deepseq
 - primitive
 
+ghc-options:
+- -Wall
+
 library:
   source-dirs: src
-
-  ghc-options:
-  - -Wall
 
 executables:
   unboxing-vector-exe:

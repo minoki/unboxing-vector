@@ -1,20 +1,24 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE DerivingStrategies #-}
+{-# OPTIONS_GHC -Wno-type-defaults -Wno-name-shadowing #-}
 import qualified Data.Vector.Unboxed as U
 import qualified Data.Vector.Unboxed.Mutable as UM
 import qualified Data.Vector.Unboxing as V
 import qualified Data.Vector as B
 import qualified Data.Vector.Generic as G
-import qualified Data.Vector.Generic.Mutable as GM
 import System.Environment (getArgs, getProgName)
 import Control.Monad
 import Data.List
 import qualified Poly as P
 
-modulo = 17 :: Int
-newtype IntMod = IntMod { getIntMod :: Int } deriving (Eq) deriving newtype (Show)
+modulo :: Int
+modulo = 17
+
+newtype IntMod = IntMod Int deriving (Eq)
+
+instance Show IntMod where
+  show (IntMod n) = show n
 
 instance V.Unboxable IntMod where
   type Underlying IntMod = Int
@@ -61,15 +65,15 @@ polyAdd :: U.Vector Int -> U.Vector Int -> U.Vector Int
 polyAdd xs ys
   | n < m = U.create $ do
       v <- UM.new m
-      forM_ [0..n-1] $ \i -> UM.write v i ((xs G.! i) `addMod` (ys G.! i))
-      forM_ [n..m-1] $ \i -> UM.write v i (ys G.! i)
+      forM_ [0..n-1] $ \i -> UM.write v i ((xs U.! i) `addMod` (ys U.! i))
+      forM_ [n..m-1] $ \i -> UM.write v i (ys U.! i)
       return v
   | m < n = U.create $ do
       v <- UM.new n
-      forM_ [0..m-1] $ \i -> UM.write v i ((xs G.! i) `addMod` (ys G.! i))
-      forM_ [m..n-1] $ \i -> UM.write v i (xs G.! i)
+      forM_ [0..m-1] $ \i -> UM.write v i ((xs U.! i) `addMod` (ys U.! i))
+      forM_ [m..n-1] $ \i -> UM.write v i (xs U.! i)
       return v
-  | n == m = trim $ U.zipWith addMod xs ys
+  | otherwise = trim $ U.zipWith addMod xs ys
   where n = U.length xs
         m = U.length ys
 
@@ -85,7 +89,7 @@ polySub xs ys
       forM_ [0..m-1] $ \i -> UM.write v i ((xs U.! i) `subMod` (ys U.! i))
       forM_ [m..n-1] $ \i -> UM.write v i (xs U.! i)
       return v
-  | n == m = trim $ U.zipWith subMod xs ys
+  | otherwise = trim $ U.zipWith subMod xs ys
   where n = U.length xs
         m = U.length ys
 
@@ -118,10 +122,11 @@ divModPoly f g
               | otherwise = let !q' = U.drop (U.length g - 1) p
                             in loop (q `polyAdd` q') (p `polySub` (q' `polyMul` g'))
 
+modPoly :: U.Vector Int -> U.Vector Int -> U.Vector Int
 modPoly f g = snd (divModPoly f g)
 
 powModPoly :: U.Vector Int -> Int -> U.Vector Int -> U.Vector Int
-powModPoly f 0 modulo = U.singleton 1
+powModPoly _ 0 _modulo = U.singleton 1
 powModPoly f n modulo = loop (n-1) f f
   where loop 0 !_ !acc = acc
         loop 1 !m !acc = (m `polyMul` acc) `modPoly` modulo
@@ -130,7 +135,7 @@ powModPoly f n modulo = loop (n-1) f f
           | otherwise = loop (i `quot` 2) ((m `polyMul` m) `modPoly` modulo) ((m `polyMul` acc) `modPoly` modulo)
 
 powPoly :: U.Vector Int -> Int -> U.Vector Int
-powPoly f 0 = U.singleton 1
+powPoly _ 0 = U.singleton 1
 powPoly f n = loop (n-1) f f
   where loop 0 !_ !acc = acc
         loop 1 !m !acc = m `polyMul` acc
@@ -138,11 +143,14 @@ powPoly f n = loop (n-1) f f
           | even i = loop (i `quot` 2) (m `polyMul` m) acc
           | otherwise = loop (i `quot` 2) (m `polyMul` m) (m `polyMul` acc)
 
+-- Specialization for unboxing vectors + IntMod:
 {-# SPECIALIZE P.addPoly :: P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod #-}
 {-# SPECIALIZE P.subPoly :: P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod #-}
 {-# SPECIALIZE P.mulPoly :: P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod #-}
 {-# SPECIALIZE P.divMod :: P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod -> (P.Poly V.Vector IntMod, P.Poly V.Vector IntMod) #-}
 {-# SPECIALIZE P.powMod :: P.Poly V.Vector IntMod -> Int -> P.Poly V.Vector IntMod -> P.Poly V.Vector IntMod #-}
+
+-- Specialization for boxed vectors + IntMod:
 {-# SPECIALIZE P.addPoly :: P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod #-}
 {-# SPECIALIZE P.subPoly :: P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod #-}
 {-# SPECIALIZE P.mulPoly :: P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod #-}

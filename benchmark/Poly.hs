@@ -4,8 +4,8 @@ import Prelude hiding (gcd, div, mod, divMod, const)
 import Control.Monad
 import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
-import qualified Data.Vector.Unboxing
-import qualified Data.Vector
+import qualified Data.Vector.Unboxing -- for writing SPECIALIZE instance pragma
+import qualified Data.Vector -- for writing SPECIALIZE instance pragma
 
 infixl 7 `div`, `mod`
 
@@ -40,8 +40,7 @@ coeffAsc :: Poly vect a -> vect a
 coeffAsc (Poly xs) = xs
 {-# INLINE coeffAsc #-}
 
-addPoly, subPoly, mulPoly :: (Eq a, Num a, G.Vector vect a) => Poly vect a -> Poly vect a -> Poly vect a
-
+addPoly :: (Eq a, Num a, G.Vector vect a) => Poly vect a -> Poly vect a -> Poly vect a
 addPoly (Poly xs) (Poly ys)
   | n < m = Poly $ G.create $ do
       v <- GM.new m
@@ -53,11 +52,12 @@ addPoly (Poly xs) (Poly ys)
       forM_ [0..m-1] $ \i -> GM.write v i ((xs G.! i) + (ys G.! i))
       forM_ [m..n-1] $ \i -> GM.write v i (xs G.! i)
       return v
-  | n == m = fromCoeffAsc $ G.zipWith (+) xs ys
+  | otherwise = fromCoeffAsc $ G.zipWith (+) xs ys
   where n = G.length xs
         m = G.length ys
 {-# INLINABLE addPoly #-}
 
+subPoly :: (Eq a, Num a, G.Vector vect a) => Poly vect a -> Poly vect a -> Poly vect a
 subPoly (Poly xs) (Poly ys)
   | n < m = Poly $ G.create $ do
       v <- GM.new m
@@ -69,12 +69,13 @@ subPoly (Poly xs) (Poly ys)
       forM_ [0..m-1] $ \i -> GM.write v i ((xs G.! i) - (ys G.! i))
       forM_ [m..n-1] $ \i -> GM.write v i (xs G.! i)
       return v
-  | n == m = fromCoeffAsc $ G.zipWith (-) xs ys
+  | otherwise = fromCoeffAsc $ G.zipWith (-) xs ys
   where n = G.length xs
         m = G.length ys
 {-# INLINABLE subPoly #-}
 
 -- multiplication: naive method
+mulPoly :: (Eq a, Num a, G.Vector vect a) => Poly vect a -> Poly vect a -> Poly vect a
 mulPoly (Poly xs) (Poly ys)
   | n == 0 || m == 0 = zero
   | otherwise = Poly $ G.generate (n + m - 1) (\i -> sum [(xs G.! j) * (ys G.! (i - j)) | j <- [max 0 (i - m + 1)..min i (n-1)]])
@@ -161,8 +162,8 @@ gcd f g | isZero g = f
 {-# INLINE gcd #-}
 
 powMod :: (Eq a, Fractional a, G.Vector vect a) => Poly vect a -> Int -> Poly vect a -> Poly vect a
-powMod f 0 modulo = 1
-powMod f n modulo = loop (n-1) f f
+powMod _a 0 _modulo = 1
+powMod a n modulo = loop (n-1) a a
   where loop 0 !_ !acc = acc
         loop 1 !m !acc = m * acc `mod` modulo
         loop i !m !acc
