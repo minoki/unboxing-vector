@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 module Data.Vector.Unboxing
-  (Unboxable(..)
+  (Unboxable(Underlying) -- 'coercion' is not exported
   ,Vector
   ,coerceVector
   ,liftCoercion
@@ -35,7 +35,7 @@ module Data.Vector.Unboxing
 import Prelude (Monad,Int,Bool,Maybe,Traversable,Eq,Num,Enum,Ord,Ordering)
 import qualified Data.Vector.Generic as G
 import Data.Vector.Generic (convert)
-import Data.Vector.Unboxing.Base
+import Data.Vector.Unboxing.Internal
 import Control.Monad.ST
 import Control.Monad.Primitive (PrimMonad,PrimState)
 

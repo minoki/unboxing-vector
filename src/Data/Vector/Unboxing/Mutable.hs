@@ -1,5 +1,5 @@
 module Data.Vector.Unboxing.Mutable
-  (Unboxable(..)
+  (Unboxable(Underlying) -- 'coercion' is not exported
   ,MVector
   ,IOVector
   ,STVector
@@ -16,7 +16,7 @@ module Data.Vector.Unboxing.Mutable
 import Prelude (Int,Bool,Ord)
 import qualified Data.Vector.Generic.Mutable as G
 import qualified Data.Vector.Unboxed.Mutable as UM
-import Data.Vector.Unboxing.Base
+import Data.Vector.Unboxing.Internal
 import Control.Monad.ST
 import Control.Monad.Primitive (PrimMonad,PrimState)
 import Data.Coerce

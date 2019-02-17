@@ -8,8 +8,8 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# OPTIONS_HADDOCK hide #-}
-module Data.Vector.Unboxing.Base
-  (Unboxable(Underlying) -- 'coercion' is not exported
+module Data.Vector.Unboxing.Internal
+  (Unboxable(Underlying, coercion) -- 'coercion' is exported
   ,Vector(UnboxingVector)
   ,MVector(UnboxingMVector)
   ,coerceVector
