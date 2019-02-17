@@ -6,6 +6,8 @@ module Data.Vector.Unboxing
   ,liftCoercion
   ,vectorCoercion
   ,convert -- from Data.Vector.Generic
+  ,toUnboxedVector
+  ,fromUnboxedVector
 
   -- Specialized versions:
   ,length,null,(!),(!?),head,last,unsafeIndex,unsafeHead,unsafeLast,indexM

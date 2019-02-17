@@ -15,6 +15,10 @@ module Data.Vector.Unboxing.Internal
   ,coerceVector
   ,liftCoercion
   ,vectorCoercion
+  ,toUnboxedVector
+  ,fromUnboxedVector
+  ,toUnboxedMVector
+  ,fromUnboxedMVector
   ) where
 import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
@@ -65,6 +69,22 @@ liftCoercion Coercion = Coercion
 vectorCoercion :: (Coercible a b, Underlying a ~ Underlying b) => Coercion (Vector a) (Vector b)
 vectorCoercion = Coercion
 {-# INLINE vectorCoercion #-}
+
+toUnboxedVector :: (Underlying a ~ a) => Vector a -> U.Vector a
+toUnboxedVector (UnboxingVector v) = v
+{-# INLINE toUnboxedVector #-}
+
+fromUnboxedVector :: (Underlying a ~ a) => U.Vector a -> Vector a
+fromUnboxedVector v = UnboxingVector v
+{-# INLINE fromUnboxedVector #-}
+
+toUnboxedMVector :: (Underlying a ~ a) => MVector s a -> U.MVector s a
+toUnboxedMVector (UnboxingMVector v) = v
+{-# INLINE toUnboxedMVector #-}
+
+fromUnboxedMVector :: (Underlying a ~ a) => U.MVector s a -> MVector s a
+fromUnboxedMVector v = UnboxingMVector v
+{-# INLINE fromUnboxedMVector #-}
 
 -- This is not possible:
 -- instance (Coercible a b, Underlying a ~ Underlying b) => Coercible (Vector a) (Vector b)

@@ -3,6 +3,8 @@ module Data.Vector.Unboxing.Mutable
   ,MVector
   ,IOVector
   ,STVector
+  ,toUnboxedMVector
+  ,fromUnboxedMVector
 
   -- Specialized versions:
   ,length,null,slice,init,tail,take,drop,splitAt,unsafeSlice,unsafeInit
