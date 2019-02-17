@@ -5,6 +5,7 @@ import TestTypeErrors
 import qualified Data.Vector.Unboxing as V
 import Data.Monoid (Sum(..))
 import Foo (Foo,mkFoo)
+import Data.MonoTraversable (ofold)
 
 newtype IntMod17 = IntMod17 Int deriving (Eq,Show)
 
@@ -25,7 +26,7 @@ testIntMod17 = TestCase $ do
   assertEqual "sum" 9 (V.sum v) -- not 60
   assertEqual "coercion" (V.fromList [14,15,16,0,1,2,3,4,5] :: V.Vector Int) (V.coerceVector v) -- this is possible because the constructor of IntMod17 is visible here
   let vSum = V.coerceVector v :: V.Vector (Sum IntMod17)
-  assertEqual "coercion and sum" (Sum 9) (V.foldl' mappend mempty vSum)
+  assertEqual "coercion and sum" (Sum 9) (ofold vSum)
 
 -- We can make an unboxed vector of Foo, even though we don't have 'Coercible Int Foo' in scope.
 testAbstractType = TestCase $ assertEqual "Foo" (V.head (V.singleton mkFoo :: V.Vector Foo)) mkFoo
