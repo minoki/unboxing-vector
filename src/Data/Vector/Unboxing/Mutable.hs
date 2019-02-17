@@ -1,18 +1,34 @@
 module Data.Vector.Unboxing.Mutable
-  (Unboxable(Underlying) -- 'coercion' is not exported
-  ,MVector
+  (MVector
   ,IOVector
   ,STVector
+  ,Unboxable(Underlying) -- 'coercion' is not exported
+  -- * Accessors
+  -- ** Length information
+  ,length,null
+  -- ** Extracting subvectors (slicing)
+  ,slice,init,tail,take,drop,splitAt,unsafeSlice,unsafeInit,unsafeTail
+  ,unsafeTake,unsafeDrop
+  -- ** Overlapping
+  ,overlaps
+  -- * Construction
+  -- ** Initialisation
+  ,new,unsafeNew,replicate,replicateM,clone
+  -- ** Growing
+  ,grow,unsafeGrow
+  -- ** Restricting memory usage
+  ,clear
+  -- * Zipping and unzipping
+  ,zip,zip3,zip4,zip5,zip6,unzip,unzip3,unzip4,unzip5,unzip6
+  -- * Accessing individual elements
+  ,read,write,modify,swap,unsafeRead,unsafeWrite,unsafeModify,unsafeSwap
+  -- * Modifying vectors
+  ,nextPermutation
+  -- ** Filling and copying
+  ,set,copy,move,unsafeCopy,unsafeMove
+  -- * Conversions from/to other vector types
   ,toUnboxedMVector
   ,fromUnboxedMVector
-
-  -- Specialized versions:
-  ,length,null,slice,init,tail,take,drop,splitAt,unsafeSlice,unsafeInit
-  ,unsafeTail,unsafeTake,unsafeDrop,overlaps,new,unsafeNew,replicate,replicateM
-  ,clone,grow,unsafeGrow,clear,read,write,modify,swap,unsafeRead,unsafeWrite
-  ,unsafeModify,unsafeSwap,nextPermutation,set,copy,move,unsafeCopy,unsafeMove
-
-  ,zip,zip3,zip4,zip5,zip6,unzip,unzip3,unzip4,unzip5,unzip6
   ) where
 
 import Prelude (Int,Bool,Ord)

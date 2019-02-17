@@ -1,37 +1,85 @@
 {-# LANGUAGE RankNTypes #-}
 module Data.Vector.Unboxing
-  (Unboxable(Underlying) -- 'coercion' is not exported
-  ,Vector
-  ,coerceVector
-  ,liftCoercion
-  ,vectorCoercion
+  (Vector
+  ,Unboxable(Underlying) -- 'coercion' is not exported
+  -- * Accessors
+  -- ** Length information
+  ,length,null
+  -- ** Indexing
+  ,(!),(!?),head,last,unsafeIndex,unsafeHead,unsafeLast
+  -- ** Monadic indexing
+  ,indexM,headM,lastM,unsafeIndexM,unsafeHeadM,unsafeLastM
+  -- ** Extracting subvectors (slicing)
+  ,slice,init,tail,take,drop,splitAt,unsafeSlice,unsafeInit,unsafeTail
+  ,unsafeTake,unsafeDrop
+  -- * Construction
+  -- ** Initialisation
+  ,empty,singleton,replicate,generate,iterateN
+  -- ** Monadic initialisation
+  ,replicateM,generateM,iterateNM,create,createT
+  -- ** Unfolding
+  ,unfoldr,unfoldrN,unfoldrM,unfoldrNM,constructN,constructrN
+  -- ** Enumeration
+  ,enumFromN,enumFromStepN,enumFromTo,enumFromThenTo
+  -- ** Concatenation
+  ,cons,snoc,(++),concat
+  -- ** Restricting memory usage
+  ,force
+  -- * Modifying vectors
+  -- ** Bulk updates
+  ,(//),update,update_,unsafeUpd,unsafeUpdate,unsafeUpdate_
+  -- ** Accumulations
+  ,accum,accumulate,accumulate_,unsafeAccum,unsafeAccumulate,unsafeAccumulate_
+  -- ** Permutations
+  ,reverse,backpermute,unsafeBackpermute
+  -- ** Safe destructive updates
+  ,modify
+  -- * Elementwise operations
+  -- ** Indexing
+  ,indexed
+  -- ** Mapping
+  ,map,imap,concatMap
+  -- ** Monadic mapping
+  ,mapM,imapM,mapM_,imapM_,forM,forM_
+  -- ** Zipping
+  ,zipWith,zipWith3,zipWith4,zipWith5,zipWith6,izipWith,izipWith3,izipWith4
+  ,izipWith5,izipWith6,zip,zip3,zip4,zip5,zip6
+  -- ** Monadic zipping
+  ,zipWithM,izipWithM,zipWithM_,izipWithM_
+  -- ** Unzipping
+  ,unzip,unzip3,unzip4,unzip5,unzip6
+  -- * Working with predicates
+  -- ** Filtering
+  ,filter,ifilter,uniq,mapMaybe,imapMaybe,filterM,takeWhile,dropWhile
+  -- ** Partitioning
+  ,partition,unstablePartition,span,break
+  -- ** Searching
+  ,elem,notElem,find,findIndex,findIndices,elemIndex,elemIndices
+  -- * Folding
+  ,foldl,foldl1,foldl',foldl1',foldr,foldr1,foldr',foldr1',ifoldl,ifoldl'
+  ,ifoldr,ifoldr'
+  -- ** Specialised folds
+  ,all,any,and,or,sum,product,maximum,maximumBy,minimum,minimumBy,minIndex
+  ,minIndexBy,maxIndex,maxIndexBy
+  -- ** Monadic folds
+  ,foldM,ifoldM,foldM',ifoldM',fold1M,fold1M',foldM_,ifoldM_,foldM'_,ifoldM'_
+  ,fold1M_,fold1M'_
+  -- * Prefix sums (scans)
+  ,prescanl,prescanl',postscanl,postscanl',scanl,scanl',scanl1,scanl1',iscanl
+  ,iscanl',prescanr,prescanr',postscanr,postscanr',scanr,scanr',scanr1,scanr1'
+  ,iscanr,iscanr'
+  -- * Conversions
+  -- ** Lists
+  ,toList,fromList,fromListN
+  -- ** Other vector types
   ,convert -- from Data.Vector.Generic
   ,toUnboxedVector
   ,fromUnboxedVector
-
-  -- Specialized versions:
-  ,length,null,(!),(!?),head,last,unsafeIndex,unsafeHead,unsafeLast,indexM
-  ,headM,lastM,unsafeIndexM,unsafeHeadM,unsafeLastM,slice,init,tail,take,drop
-  ,splitAt,unsafeSlice,unsafeInit,unsafeTail,unsafeTake,unsafeDrop,empty
-  ,singleton,replicate,generate,iterateN,replicateM,generateM,iterateNM,create
-  ,createT,unfoldr,unfoldrN,unfoldrM,unfoldrNM,constructN,constructrN,enumFromN
-  ,enumFromStepN,enumFromTo,enumFromThenTo,cons,snoc,(++),concat,force,(//)
-  ,update,update_,unsafeUpd,unsafeUpdate,unsafeUpdate_,accum,accumulate
-  ,accumulate_,unsafeAccum,unsafeAccumulate,unsafeAccumulate_,reverse
-  ,backpermute,unsafeBackpermute,modify,indexed,map,imap,concatMap,mapM,imapM
-  ,mapM_,imapM_,forM,forM_,zipWith,zipWith3,zipWith4,zipWith5,zipWith6,izipWith
-  ,izipWith3,izipWith4,izipWith5,izipWith6,zip,zip3,zip4,zip5,zip6,zipWithM
-  ,izipWithM,zipWithM_,izipWithM_,unzip,unzip3,unzip4,unzip5,unzip6,filter
-  ,ifilter,uniq,mapMaybe,imapMaybe,filterM,takeWhile,dropWhile,partition
-  ,unstablePartition,span,break,elem,notElem,find,findIndex,findIndices
-  ,elemIndex,elemIndices,foldl,foldl1,foldl',foldl1',foldr,foldr1,foldr'
-  ,foldr1',ifoldl,ifoldl',ifoldr,ifoldr',all,any,and,or,sum,product,maximum
-  ,maximumBy,minimum,minimumBy,minIndex,minIndexBy,maxIndex,maxIndexBy,foldM
-  ,ifoldM,foldM',ifoldM',fold1M,fold1M',foldM_,ifoldM_,foldM'_,ifoldM'_,fold1M_
-  ,fold1M'_,prescanl,prescanl',postscanl,postscanl',scanl,scanl',scanl1,scanl1'
-  ,iscanl,iscanl',prescanr,prescanr',postscanr,postscanr',scanr,scanr',scanr1
-  ,scanr1',iscanr,iscanr',toList,fromList,fromListN,freeze,thaw,copy
-  ,unsafeFreeze,unsafeThaw,unsafeCopy
+  ,coerceVector
+  ,liftCoercion
+  ,vectorCoercion
+  -- ** Mutable vectors
+  ,freeze,thaw,copy,unsafeFreeze,unsafeThaw,unsafeCopy
   ) where
 
 import Prelude (Monad,Int,Bool,Maybe,Traversable,Eq,Num,Enum,Ord,Ordering)
