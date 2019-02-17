@@ -40,11 +40,28 @@ import GHC.Exts (IsList(..))
 import Control.DeepSeq (NFData(..))
 import Text.Read (Read(..),readListPrecDefault)
 
+-- | Types that can be stored in unboxed vectors ('Vector' and 'MVector').
+--
+-- This class consists of three components:
+--
+-- * The underlying (primitive) type @Underlying a@.
+-- * The witness that @Underlying a@ is an instance of 'U.Unbox'.
+--   (i.e. the underlying type can be stored in 'Data.Vector.Unboxed.Vector')
+-- * The witness that @a@ and @Underlying a@ has the same representation.
+--   This is essentially the constraint @Coercible a (Underlying a)@,
+--   but making it a class constraint
+--   (i.e. defining this class as @(..., Coercible a (Underlying a)) => Unboxable a@)
+--   leads to an unwanted leak of the @Coercible@ constraint.
+--   So a trick is used here to hide the @Coercible@ constraint from user code.
+--
+-- This class can be derived with @GeneralizedNewtypeDeriving@
+-- (you may need @UndecidableInstances@ in addition).
 class (U.Unbox (Underlying a) {-, Coercible a (Underlying a) -}) => Unboxable a where
   -- | The underlying type of @a@.  Must be an instance of 'U.Unbox'.
   type Underlying a
 
   -- A hack to hide @Coercible a (Underlying a)@ from outside...
+  -- This method should always be inlined.
   coercion :: Coercion a (Underlying a)
   default coercion :: Coercible a (Underlying a) => Coercion a (Underlying a)
   coercion = Coercion
