@@ -92,9 +92,9 @@ fromUnboxedMVector v = UnboxingMVector v
 
 instance (Unboxable a) => IsList (Vector a) where
   type Item (Vector a) = a
-  fromList xs         = case coercion @ a of Coercion -> UnboxingVector (fromList (coerce xs))
-  fromListN n xs      = case coercion @ a of Coercion -> UnboxingVector (fromListN n (coerce xs))
-  toList (UnboxingVector v) = case coercion @ a of Coercion -> coerce (toList v)
+  fromList = G.fromList
+  fromListN = G.fromListN
+  toList = G.toList
   {-# INLINE fromList #-}
   {-# INLINE fromListN #-}
   {-# INLINE toList #-}
