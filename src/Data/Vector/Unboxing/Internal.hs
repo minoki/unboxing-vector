@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -250,42 +249,42 @@ instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d, Unboxable e, Unbox
 
 instance (Unboxable a) => Unboxable (Data.Functor.Identity.Identity a) where
   type Underlying (Data.Functor.Identity.Identity a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Functor.Const.Const a b) where
   type Underlying (Data.Functor.Const.Const a b) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.Min a) where
   type Underlying (Data.Semigroup.Min a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.Max a) where
   type Underlying (Data.Semigroup.Max a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.First a) where
   type Underlying (Data.Semigroup.First a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.Last a) where
   type Underlying (Data.Semigroup.Last a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.WrappedMonoid a) where
   type Underlying (Data.Semigroup.WrappedMonoid a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Monoid.Dual a) where
   type Underlying (Data.Monoid.Dual a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance Unboxable Data.Monoid.All where
@@ -296,15 +295,15 @@ instance Unboxable Data.Monoid.Any where
 
 instance (Unboxable a) => Unboxable (Data.Monoid.Sum a) where
   type Underlying (Data.Monoid.Sum a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Monoid.Product a) where
   type Underlying (Data.Monoid.Product a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Ord.Down a) where
   type Underlying (Data.Ord.Down a) = Underlying a
-  coercion = case coercion @ a of Coercion -> Coercion
+  coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
