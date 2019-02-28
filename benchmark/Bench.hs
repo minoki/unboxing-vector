@@ -1,27 +1,32 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# OPTIONS_GHC -Wno-type-defaults -Wno-name-shadowing #-}
 import qualified Data.Vector.Unboxed as U
 import qualified Data.Vector.Unboxed.Mutable as UM
 import qualified Data.Vector.Unboxing as V
+import qualified Data.Vector.Unboxing.Generic as VG
 import qualified Data.Vector as B
 import qualified Data.Vector.Generic as G
 import System.Environment (getArgs, getProgName)
 import Control.Monad
 import Data.List
 import qualified Poly as P
+import GHC.Generics (Generic)
 
 modulo :: Int
 modulo = 17
 
-newtype IntMod = IntMod Int deriving (Eq)
+newtype IntMod = IntMod Int deriving (Eq,Generic)
 
 instance Show IntMod where
   show (IntMod n) = show n
 
 instance V.Unboxable IntMod where
   type Underlying IntMod = Int
+
+instance VG.Unboxable IntMod -- using generic instance
 
 instance Num IntMod where
   IntMod x + IntMod y = IntMod ((x + y) `rem` modulo)
@@ -157,6 +162,13 @@ powPoly f n = loop (n-1) f f
 {-# SPECIALIZE P.divMod :: P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod -> (P.Poly B.Vector IntMod, P.Poly B.Vector IntMod) #-}
 {-# SPECIALIZE P.powMod :: P.Poly B.Vector IntMod -> Int -> P.Poly B.Vector IntMod -> P.Poly B.Vector IntMod #-}
 
+-- Specialization for generic unboxing vectors + IntMod:
+{-# SPECIALIZE P.addPoly :: P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod #-}
+{-# SPECIALIZE P.subPoly :: P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod #-}
+{-# SPECIALIZE P.mulPoly :: P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod #-}
+{-# SPECIALIZE P.divMod :: P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod -> (P.Poly VG.Vector IntMod, P.Poly VG.Vector IntMod) #-}
+{-# SPECIALIZE P.powMod :: P.Poly VG.Vector IntMod -> Int -> P.Poly VG.Vector IntMod -> P.Poly VG.Vector IntMod #-}
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -173,9 +185,13 @@ main = do
       let f = P.x^2000 - (P.x^2 + P.x + 1) :: P.Poly B.Vector IntMod
       let g = P.powMod P.x 1000000000 f
       print $ G.sum $ P.coeffAsc g -- should print '1'
+    "unboxing-generic":_ -> do
+      let f = P.x^2000 - (P.x^2 + P.x + 1) :: P.Poly VG.Vector IntMod
+      let g = P.powMod P.x 1000000000 f
+      print $ G.sum $ P.coeffAsc g -- should print '1'
     _ -> do
       progName <- getProgName
-      putStrLn $ progName ++ " (unboxed|unboxing|boxed)"
+      putStrLn $ progName ++ " (unboxed|unboxing|boxed|unboxing-generic)"
       putStr $ unlines ["This program computes the polynomial x^1000000000 mod (x^2000 - x^2 - x - 1)"
                        ,"and prints its value at x=1 in the finite field F_17 (or GF(17))."
                        ,"Run with '+RTS -t' to show memory usage."

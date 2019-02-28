@@ -1,11 +1,14 @@
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DeriveGeneric #-}
 import Prelude
 import Test.HUnit
 import TestTypeErrors
 import qualified Data.Vector.Unboxing as V
+import qualified Data.Vector.Unboxing.Generic as VG
 import Data.Monoid (Sum(..))
 import Foo (Foo,mkFoo)
 import Data.MonoTraversable (ofold)
+import GHC.Generics
 
 newtype IntMod17 = IntMod17 Int deriving (Eq,Show)
 
@@ -37,3 +40,7 @@ tests = TestList [TestLabel "Basic features" testIntMod17
                  ]
 
 main = runTestTT tests
+
+-- Deriving using Generic
+data ComplexDouble = ComplexDouble {-# UNPACK #-} !Double {-# UNPACK #-} !Double deriving (Eq,Show,Generic)
+instance VG.Unboxable ComplexDouble -- using Generic
