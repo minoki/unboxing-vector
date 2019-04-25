@@ -2,8 +2,8 @@ name:                unboxing-vector
 version:             0.1.0.0
 github:              "minoki/unboxing-vector"
 license:             BSD3
-author:              "ARATA Mizuki"
-maintainer:          "minorinoki@gmail.com"
+author:              "ARATA Mizuki <minorinoki@gmail.com>"
+maintainer:          "ARATA Mizuki <minorinoki@gmail.com>"
 copyright:           "2019 ARATA Mizuki"
 
 extra-source-files:
@@ -11,8 +11,8 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            Newtype-friendly Unboxed Vectors
+category:            Data, Data Structures
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -20,7 +20,7 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/minoki/unboxing-vector#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.9 && < 5  # Data.Semigroup is available since 4.9.0.0
 - vector
 - deepseq
 - primitive
