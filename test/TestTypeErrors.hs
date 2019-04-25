@@ -19,7 +19,7 @@ intToFoo1 x = coerce x
 
 -- 'intToFoo2' should not compile because 'coerceVector' requires the constructor to be visible.
 -- This one does compile if 'coerceVector' is defined as
--- > coerceVector :: (Coercible a b, Underlying a ~ Underlying b) => Vector a -> Vector b
+-- > coerceVector :: ({- Coercible a b, -} Underlying a ~ Underlying b) => Vector a -> Vector b
 intToFoo2 :: Int -> Foo
 intToFoo2 x = V.head (V.coerceVector (V.singleton x))
 
