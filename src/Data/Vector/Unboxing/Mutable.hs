@@ -2,7 +2,8 @@ module Data.Vector.Unboxing.Mutable
   (MVector
   ,IOVector
   ,STVector
-  ,Unboxable(Rep) -- 'coercion' is not exported
+  ,Unboxable(Rep)
+  ,Generics(..)
   -- * Accessors
   -- ** Length information
   ,length,null

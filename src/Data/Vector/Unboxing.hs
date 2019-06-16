@@ -1,7 +1,8 @@
 {-# LANGUAGE RankNTypes #-}
 module Data.Vector.Unboxing
   (Vector
-  ,Unboxable(Rep) -- 'coercion' is not exported
+  ,Unboxable(Rep)
+  ,Generics(..)
   -- * Accessors
   -- ** Length information
   ,length,null
