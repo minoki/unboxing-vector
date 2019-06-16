@@ -8,7 +8,7 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# OPTIONS_HADDOCK hide #-}
 module Data.Vector.Unboxing.Internal
-  (Unboxable(Underlying, coercion) -- 'coercion' is exported
+  (Unboxable(Rep, coercion) -- 'coercion' is exported
   ,Vector(UnboxingVector)
   ,MVector(UnboxingMVector)
   ,coerceVector
@@ -44,68 +44,68 @@ import Text.Read (Read(..),readListPrecDefault)
 --
 -- This class consists of three components:
 --
--- * The underlying (primitive) type @Underlying a@.
--- * The witness that @Underlying a@ is an instance of 'U.Unbox'.
+-- * The underlying (primitive) type @Rep a@.
+-- * The witness that @Rep a@ is an instance of 'U.Unbox'.
 --   (i.e. the underlying type can be stored in 'Data.Vector.Unboxed.Vector')
--- * The witness that @a@ and @Underlying a@ has the same representation.
---   This is essentially the constraint @Coercible a (Underlying a)@,
+-- * The witness that @a@ and @Rep a@ has the same representation.
+--   This is essentially the constraint @Coercible a (Rep a)@,
 --   but making it a class constraint
---   (i.e. defining this class as @(..., Coercible a (Underlying a)) => Unboxable a@)
+--   (i.e. defining this class as @(..., Coercible a (Rep a)) => Unboxable a@)
 --   leads to an unwanted leak of the @Coercible@ constraint.
 --   So a trick is used here to hide the @Coercible@ constraint from user code.
 --
 -- This class can be derived with @GeneralizedNewtypeDeriving@
 -- (you may need @UndecidableInstances@ in addition).
-class (U.Unbox (Underlying a) {-, Coercible a (Underlying a) -}) => Unboxable a where
+class (U.Unbox (Rep a) {-, Coercible a (Rep a) -}) => Unboxable a where
   -- | The underlying type of @a@.  Must be an instance of 'U.Unbox'.
-  type Underlying a
+  type Rep a
 
-  -- A hack to hide @Coercible a (Underlying a)@ from outside...
+  -- A hack to hide @Coercible a (Rep a)@ from outside...
   -- This method should always be inlined.
-  coercion :: Coercion a (Underlying a)
-  default coercion :: Coercible a (Underlying a) => Coercion a (Underlying a)
+  coercion :: Coercion a (Rep a)
+  default coercion :: Coercible a (Rep a) => Coercion a (Rep a)
   coercion = Coercion
   {-# INLINE coercion #-}
 
 -- This declaration is not possible:
 -- type role Vector representational
 
-newtype Vector a = UnboxingVector (U.Vector (Underlying a))
-newtype MVector s a = UnboxingMVector (UM.MVector s (Underlying a))
+newtype Vector a = UnboxingVector (U.Vector (Rep a))
+newtype MVector s a = UnboxingMVector (UM.MVector s (Rep a))
 
 type instance G.Mutable Vector = MVector
 
 -- Coercible a b is not strictly necessary in this function, but the data constructors should be visible on the call site.
-coerceVector :: (Coercible a b, Underlying a ~ Underlying b) => Vector a -> Vector b
+coerceVector :: (Coercible a b, Rep a ~ Rep b) => Vector a -> Vector b
 coerceVector = coerce
 {-# INLINE coerceVector #-}
 
-liftCoercion :: (Underlying a ~ Underlying b) => Coercion a b -> Coercion (Vector a) (Vector b)
+liftCoercion :: (Rep a ~ Rep b) => Coercion a b -> Coercion (Vector a) (Vector b)
 liftCoercion Coercion = Coercion
 {-# INLINE liftCoercion #-}
 
-vectorCoercion :: (Coercible a b, Underlying a ~ Underlying b) => Coercion (Vector a) (Vector b)
+vectorCoercion :: (Coercible a b, Rep a ~ Rep b) => Coercion (Vector a) (Vector b)
 vectorCoercion = Coercion
 {-# INLINE vectorCoercion #-}
 
-toUnboxedVector :: (Underlying a ~ a) => Vector a -> U.Vector a
+toUnboxedVector :: (Rep a ~ a) => Vector a -> U.Vector a
 toUnboxedVector (UnboxingVector v) = v
 {-# INLINE toUnboxedVector #-}
 
-fromUnboxedVector :: (Underlying a ~ a) => U.Vector a -> Vector a
+fromUnboxedVector :: (Rep a ~ a) => U.Vector a -> Vector a
 fromUnboxedVector v = UnboxingVector v
 {-# INLINE fromUnboxedVector #-}
 
-toUnboxedMVector :: (Underlying a ~ a) => MVector s a -> U.MVector s a
+toUnboxedMVector :: (Rep a ~ a) => MVector s a -> U.MVector s a
 toUnboxedMVector (UnboxingMVector v) = v
 {-# INLINE toUnboxedMVector #-}
 
-fromUnboxedMVector :: (Underlying a ~ a) => U.MVector s a -> MVector s a
+fromUnboxedMVector :: (Rep a ~ a) => U.MVector s a -> MVector s a
 fromUnboxedMVector v = UnboxingMVector v
 {-# INLINE fromUnboxedMVector #-}
 
 -- This is not possible:
--- instance (Coercible a b, Underlying a ~ Underlying b) => Coercible (Vector a) (Vector b)
+-- instance (Coercible a b, Rep a ~ Rep b) => Coercible (Vector a) (Vector b)
 
 instance (Unboxable a) => IsList (Vector a) where
   type Item (Vector a) = a
@@ -349,36 +349,36 @@ instance (Unboxable a) => Data.Sequences.IsSequence (Vector a) where
 
 -- Unboxable instances
 
-instance Unboxable Bool where   type Underlying Bool = Bool
-instance Unboxable Char where   type Underlying Char = Char
-instance Unboxable Double where type Underlying Double = Double
-instance Unboxable Float where  type Underlying Float = Float
-instance Unboxable Int where    type Underlying Int = Int
-instance Unboxable Int8 where   type Underlying Int8 = Int8
-instance Unboxable Int16 where  type Underlying Int16 = Int16
-instance Unboxable Int32 where  type Underlying Int32 = Int32
-instance Unboxable Int64 where  type Underlying Int64 = Int64
-instance Unboxable Word where   type Underlying Word = Word
-instance Unboxable Word8 where  type Underlying Word8 = Word8
-instance Unboxable Word16 where type Underlying Word16 = Word16
-instance Unboxable Word32 where type Underlying Word32 = Word32
-instance Unboxable Word64 where type Underlying Word64 = Word64
-instance Unboxable () where     type Underlying () = ()
+instance Unboxable Bool where   type Rep Bool = Bool
+instance Unboxable Char where   type Rep Char = Char
+instance Unboxable Double where type Rep Double = Double
+instance Unboxable Float where  type Rep Float = Float
+instance Unboxable Int where    type Rep Int = Int
+instance Unboxable Int8 where   type Rep Int8 = Int8
+instance Unboxable Int16 where  type Rep Int16 = Int16
+instance Unboxable Int32 where  type Rep Int32 = Int32
+instance Unboxable Int64 where  type Rep Int64 = Int64
+instance Unboxable Word where   type Rep Word = Word
+instance Unboxable Word8 where  type Rep Word8 = Word8
+instance Unboxable Word16 where type Rep Word16 = Word16
+instance Unboxable Word32 where type Rep Word32 = Word32
+instance Unboxable Word64 where type Rep Word64 = Word64
+instance Unboxable () where     type Rep () = ()
 
 instance (Unboxable a) => Unboxable (Data.Complex.Complex a) where
-  type Underlying (Data.Complex.Complex a) = Data.Complex.Complex (Underlying a)
+  type Rep (Data.Complex.Complex a) = Data.Complex.Complex (Rep a)
   coercion = case coercion @ a of Coercion -> Coercion
   {-# INLINE coercion #-}
 
 instance (Unboxable a, Unboxable b) => Unboxable (a, b) where
-  type Underlying (a, b) = (Underlying a, Underlying b)
+  type Rep (a, b) = (Rep a, Rep b)
   coercion = case coercion @ a of
     Coercion -> case coercion @ b of
       Coercion -> Coercion
   {-# INLINE coercion #-}
 
 instance (Unboxable a, Unboxable b, Unboxable c) => Unboxable (a, b, c) where
-  type Underlying (a, b, c) = (Underlying a, Underlying b, Underlying c)
+  type Rep (a, b, c) = (Rep a, Rep b, Rep c)
   coercion = case coercion @ a of
     Coercion -> case coercion @ b of
       Coercion -> case coercion @ c of
@@ -386,7 +386,7 @@ instance (Unboxable a, Unboxable b, Unboxable c) => Unboxable (a, b, c) where
   {-# INLINE coercion #-}
 
 instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d) => Unboxable (a, b, c, d) where
-  type Underlying (a, b, c, d) = (Underlying a, Underlying b, Underlying c, Underlying d)
+  type Rep (a, b, c, d) = (Rep a, Rep b, Rep c, Rep d)
   coercion = case coercion @ a of
     Coercion -> case coercion @ b of
       Coercion -> case coercion @ c of
@@ -395,7 +395,7 @@ instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d) => Unboxable (a, b
   {-# INLINE coercion #-}
 
 instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d, Unboxable e) => Unboxable (a, b, c, d, e) where
-  type Underlying (a, b, c, d, e) = (Underlying a, Underlying b, Underlying c, Underlying d, Underlying e)
+  type Rep (a, b, c, d, e) = (Rep a, Rep b, Rep c, Rep d, Rep e)
   coercion = case coercion @ a of
     Coercion -> case coercion @ b of
       Coercion -> case coercion @ c of
@@ -405,7 +405,7 @@ instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d, Unboxable e) => Un
   {-# INLINE coercion #-}
 
 instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d, Unboxable e, Unboxable f) => Unboxable (a, b, c, d, e, f) where
-  type Underlying (a, b, c, d, e, f) = (Underlying a, Underlying b, Underlying c, Underlying d, Underlying e, Underlying f)
+  type Rep (a, b, c, d, e, f) = (Rep a, Rep b, Rep c, Rep d, Rep e, Rep f)
   coercion = case coercion @ a of
     Coercion -> case coercion @ b of
       Coercion -> case coercion @ c of
@@ -416,62 +416,62 @@ instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d, Unboxable e, Unbox
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Functor.Identity.Identity a) where
-  type Underlying (Data.Functor.Identity.Identity a) = Underlying a
+  type Rep (Data.Functor.Identity.Identity a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Functor.Const.Const a b) where
-  type Underlying (Data.Functor.Const.Const a b) = Underlying a
+  type Rep (Data.Functor.Const.Const a b) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.Min a) where
-  type Underlying (Data.Semigroup.Min a) = Underlying a
+  type Rep (Data.Semigroup.Min a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.Max a) where
-  type Underlying (Data.Semigroup.Max a) = Underlying a
+  type Rep (Data.Semigroup.Max a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.First a) where
-  type Underlying (Data.Semigroup.First a) = Underlying a
+  type Rep (Data.Semigroup.First a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.Last a) where
-  type Underlying (Data.Semigroup.Last a) = Underlying a
+  type Rep (Data.Semigroup.Last a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Semigroup.WrappedMonoid a) where
-  type Underlying (Data.Semigroup.WrappedMonoid a) = Underlying a
+  type Rep (Data.Semigroup.WrappedMonoid a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Monoid.Dual a) where
-  type Underlying (Data.Monoid.Dual a) = Underlying a
+  type Rep (Data.Monoid.Dual a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance Unboxable Data.Monoid.All where
-  type Underlying Data.Monoid.All = Bool
+  type Rep Data.Monoid.All = Bool
 
 instance Unboxable Data.Monoid.Any where
-  type Underlying Data.Monoid.Any = Bool
+  type Rep Data.Monoid.Any = Bool
 
 instance (Unboxable a) => Unboxable (Data.Monoid.Sum a) where
-  type Underlying (Data.Monoid.Sum a) = Underlying a
+  type Rep (Data.Monoid.Sum a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Monoid.Product a) where
-  type Underlying (Data.Monoid.Product a) = Underlying a
+  type Rep (Data.Monoid.Product a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}
 
 instance (Unboxable a) => Unboxable (Data.Ord.Down a) where
-  type Underlying (Data.Ord.Down a) = Underlying a
+  type Rep (Data.Ord.Down a) = Rep a
   coercion = coerce (coercion @ a)
   {-# INLINE coercion #-}

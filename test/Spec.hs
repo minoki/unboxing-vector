@@ -13,7 +13,7 @@ import GHC.Generics
 newtype IntMod17 = IntMod17 Int deriving (Eq,Show)
 
 instance V.Unboxable IntMod17 where
-  type Underlying IntMod17 = Int
+  type Rep IntMod17 = Int
 
 instance Num IntMod17 where
   IntMod17 x + IntMod17 y = IntMod17 ((x + y) `rem` 17)

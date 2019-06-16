@@ -24,7 +24,7 @@ instance Show IntMod where
   show (IntMod n) = show n
 
 instance V.Unboxable IntMod where
-  type Underlying IntMod = Int
+  type Rep IntMod = Int
 
 instance VG.Unboxable IntMod -- using generic instance
 

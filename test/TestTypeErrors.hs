@@ -19,13 +19,13 @@ intToFoo1 x = coerce x
 
 -- 'intToFoo2' should not compile because 'coerceVector' requires the constructor to be visible.
 -- This one does compile if 'coerceVector' is defined as
--- > coerceVector :: ({- Coercible a b, -} Underlying a ~ Underlying b) => Vector a -> Vector b
+-- > coerceVector :: ({- Coercible a b, -} Rep a ~ Rep b) => Vector a -> Vector b
 intToFoo2 :: Int -> Foo
 intToFoo2 x = V.head (V.coerceVector (V.singleton x))
 
 -- 'intToFoo3' should not compile because the constructor of Foo is not visible.
 -- This one does compile if 'Unboxable' is defined as
--- > class (U.Unbox (Underlying a), Coercible a (Underlying a)) => Unboxable a
+-- > class (U.Unbox (Rep a), Coercible a (Rep a)) => Unboxable a
 intToFoo3 :: (V.Unboxable a, a ~ Foo) => Int -> a
 intToFoo3 x = coerce x
 

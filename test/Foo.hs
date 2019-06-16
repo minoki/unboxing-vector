@@ -26,7 +26,7 @@ mkFoo = Foo 42
 -- The number of lines needed to enable 'Data.Vector.Unboxing.Vector Foo' is ...
 
 instance Unboxable Foo where
-  type Underlying Foo = Int -- needs TypeFamilies here
+  type Rep Foo = Int -- needs TypeFamilies here
 
 -- ... only 2 lines!
 -- Also, you can use GeneralizedNewtypeDeriving + UndecidableInstances if you want to write less.
