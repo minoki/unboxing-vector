@@ -49,6 +49,7 @@ import qualified Data.Sequences       -- from mono-traversable
 import GHC.Exts (IsList(..))
 import Control.DeepSeq (NFData(..))
 import Text.Read (Read(..),readListPrecDefault)
+import GHC.TypeLits (TypeError,ErrorMessage(Text))
 
 newtype Vector a = UnboxingVector (U.Vector (Rep a))
 newtype MVector s a = UnboxingMVector (UM.MVector s (Rep a))
@@ -163,6 +164,10 @@ instance (Unboxable' f, Unboxable' g) => Unboxable' (f GHC.Generics.:*: g) where
   to' (x, y) = (to' x GHC.Generics.:*: to' y)
   {-# INLINE from' #-}
   {-# INLINE to' #-}
+instance (TypeError ('Text "Cannot derive Unboxable instance for a sum type.")) => Unboxable' (f GHC.Generics.:+: g) where
+  type Rep' (f GHC.Generics.:+: g) = ()
+  from' = undefined
+  to' = undefined
 
 -----
 
