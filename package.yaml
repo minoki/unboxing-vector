@@ -31,6 +31,9 @@ ghc-options:
 
 library:
   source-dirs: src
+  other-modules:
+  - Data.Vector.Unboxing.Internal
+  - Data.Vector.Unboxing.Generic.Internal
 
 executables:
   unboxing-vector-benchmark:
