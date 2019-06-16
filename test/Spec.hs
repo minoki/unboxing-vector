@@ -1,16 +1,27 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE UndecidableInstances #-}
 import Prelude
 import Test.HUnit
-import TestTypeErrors
 import qualified Data.Vector.Unboxing as V
-import qualified Data.Vector.Unboxing.Generic as VG
+import qualified Data.Vector.Unboxed
 import Data.Monoid (Sum(..))
-import Foo (Foo,mkFoo)
 import Data.MonoTraversable (ofold)
-import GHC.Generics
+---
+import TestTypeErrors
+import Foo (Foo,mkFoo)
+import Generic
 
-newtype IntMod17 = IntMod17 Int deriving (Eq,Show)
+testInt = TestCase $ do
+  let v = V.fromList [2,-5,42] :: V.Vector Int
+      w = Data.Vector.Unboxed.fromList [2,-5,42] :: Data.Vector.Unboxed.Vector Int
+  assertEqual "to unboxed" w (V.toUnboxedVector v)
+  assertEqual "from unboxed" v (V.fromUnboxedVector w)
+
+newtype IntMod17 = IntMod17 Int
+  deriving (Eq,Show)
+--  deriving newtype VF.Unboxable
 
 instance V.Unboxable IntMod17 where
   type Rep IntMod17 = Int
@@ -31,16 +42,33 @@ testIntMod17 = TestCase $ do
   let vSum = V.coerceVector v :: V.Vector (Sum IntMod17)
   assertEqual "coercion and sum" (Sum 9) (ofold vSum)
 
+newtype Baz = Baz Foo
+  deriving (Eq,Show,V.Unboxable)
+
+testBaz = TestCase $ do
+  let foo :: V.Vector Foo
+      foo = V.singleton mkFoo
+      baz :: V.Vector Baz
+      baz = V.singleton (Baz mkFoo)
+  assertEqual "construction" (Baz mkFoo) (V.head baz)
+  assertEqual "map 1" baz (V.map Baz foo)
+  assertEqual "map 2" foo (V.map (\(Baz x) -> x) baz)
+  assertEqual "coercion" baz (V.coerceVector foo)
+
 -- We can make an unboxed vector of Foo, even though we don't have 'Coercible Int Foo' in scope.
-testAbstractType = TestCase $ assertEqual "Foo" (V.head (V.singleton mkFoo :: V.Vector Foo)) mkFoo
+testAbstractType = TestCase $ do
+  let v = V.singleton mkFoo :: V.Vector Foo
+  assertEqual "Foo" mkFoo (V.head v)
+  assertEqual "coercion" mkFoo (getSum $ V.head (V.coerceVector v :: V.Vector (Sum Foo)))
 
 tests = TestList [TestLabel "Basic features" testIntMod17
+                 ,TestLabel "Conversion with Data.Vector.Unboxed" testInt
                  ,TestLabel "Test with abstract type" testAbstractType
                  ,TestLabel "Check for type errors" testTypeErrors
+                 ,TestLabel "Test with generic 1" testComplexDouble
+                 ,TestLabel "Test with generic 2" testBar
+                 ,TestLabel "Test with GND" testBaz
                  ]
 
 main = runTestTT tests
 
--- Deriving using Generic
-data ComplexDouble = ComplexDouble {-# UNPACK #-} !Double {-# UNPACK #-} !Double deriving (Eq,Show,Generic)
-instance VG.Unboxable ComplexDouble -- using Generic
