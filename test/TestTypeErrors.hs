@@ -1,12 +1,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fdefer-type-errors -Wno-deferred-type-errors #-}
 module TestTypeErrors where
 import Test.HUnit
 import Test.ShouldNotTypecheck
 import Data.Coerce
 import qualified Data.Vector.Unboxing as V
-import qualified Data.Vector.Unboxing.Generic as VG
 import Foo (Foo)
 import GHC.Generics
 
@@ -29,8 +30,9 @@ intToFoo2 x = V.head (V.coerceVector (V.singleton x))
 intToFoo3 :: (V.Unboxable a, a ~ Foo) => Int -> a
 intToFoo3 x = coerce x
 
-data Animal = Dog | Cat deriving (Eq,Show,Generic)
-instance VG.Unboxable Animal
+data Animal = Dog | Cat
+  deriving (Eq,Show,Generic)
+  deriving V.Unboxable via V.Generics Animal
 
 testTypeErrors :: Test
 testTypeErrors = TestList [TestLabel "Basic test for coerce" $ TestCase $ shouldNotTypecheck (intToFoo1 0xDEAD)
