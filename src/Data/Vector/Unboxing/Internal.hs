@@ -164,8 +164,8 @@ instance (Unboxable' f, Unboxable' g) => Unboxable' (f GHC.Generics.:*: g) where
   to' (x, y) = (to' x GHC.Generics.:*: to' y)
   {-# INLINE from' #-}
   {-# INLINE to' #-}
-instance (TypeError ('Text "Cannot derive Unboxable instance for a sum type.")) => Unboxable' (f GHC.Generics.:+: g) where
-  type Rep' (f GHC.Generics.:+: g) = ()
+instance Unboxable' (f GHC.Generics.:+: g) where
+  type Rep' (f GHC.Generics.:+: g) = TypeError ('Text "Cannot derive Unboxable instance for a sum type.")
   from' = undefined
   to' = undefined
 
