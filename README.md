@@ -25,9 +25,9 @@ generate 10 (\i -> Foo i) :: Data.Vector.Unboxing.Vector Foo
 
 ...and if you want to be even more concise, you can derive `Unboxable` instance with `GeneralizedNewtypeDeriving`.
 
-Note that the vector type provided by this package (`Data.Vector.Unboxing.Vector`) is *different* from `Data.Vector.Unboxed.Vector`, although the former is a newtype for the latter.
+Note that the vector type provided by this package (`Data.Vector.Unboxing.Vector`) is *different* from `Data.Vector.Unboxed.Vector`.
 
-The data constructor `Foo` can be private.
+The module defining the type `Foo` does not need to export its constructor to enable use of `Vector Foo`.
 
 ## For non-newtypes
 
@@ -39,21 +39,42 @@ data ComplexDouble = MkComplexDouble {-# UNPACK #-} !Double {-# UNPACK #-} !Doub
 
 In this example, `ComplexDouble` is isomorphic to `(Double, Double)`, but has a different representation. Thus, you cannot derive `Data.Vector.Unboxing.Unboxable` from `(Double, Double)`.
 
-For such cases, unboxing-vector provides another vector type: `Data.Vector.Unboxing.Generic`.
-
-To use this, you provide conversion functions to the isomorphic type:
+For such cases, unboxing-vector provides a feature to derive `Unboxable` using `Generic`.
 
 ```haskell
-instance Data.Vector.Unboxing.Generic.Unboxable ComplexDouble where
-  type Rep ComplexDouble = (Double, Double)
-  from (MkComplexDouble x y) = (x, y)
-  to (x, y) = MkComplexDouble x y
+{-# LANGUAGE DeriveGeneric, DerivingVia, UndecidableInstances #-}
+
+data ComplexDouble = ..
+  deriving Generic
+  deriving Data.Vector.Unboxing.Unboxable via Data.Vector.Unboxing.Generics ComplexDouble
 ```
 
-If you have the instance of `GHC.Generics.Generic`, you can omit the conversion functions:
+## Conversion
+
+### Conversion from/to Unboxed vector
+
+You can use `fromUnboxedVector` and `toUnboxedVector` to convert one vector type to another.
 
 ```haskell
-data ComplexDouble = ... deriving Generic
+import qualified Data.Vector.Unboxed as Unboxed
+import qualified Data.Vector.Unboxing as Unboxing
 
-instance Data.Vector.Unboxing.Generic.Unboxable ComplexDouble
+convert :: Unboxed.Vector Int -> Unboxing.Vector Int
+convert vec = Unboxing.fromUnboxedVector vec
+```
+
+### Coercion between Unboxing vectors
+
+You can use `coerceVector` to convert vector types of different element types, if they have the same representation and have appropriate data constructors in scope.
+
+```haskell
+import qualified Data.Vector.Unboxing as Unboxing
+import Data.MonoTraversable (ofold)
+import Data.Monoid (Sum(..), All, getAll)
+
+sum :: Unboxing.Vector Int -> Int
+sum vec = getSum $ ofold (coerceVector vec :: Unboxing.Vector (Sum Int)) -- OK
+
+and :: Unboxing.Vector Bool -> Bool
+and vec = getAll $ ofold (coerceVector vec :: Unboxing.Vector All) -- fails because the data constructor is not in scope
 ```
