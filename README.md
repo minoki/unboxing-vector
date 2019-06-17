@@ -73,8 +73,8 @@ import Data.MonoTraversable (ofold)
 import Data.Monoid (Sum(..), All, getAll)
 
 sum :: Unboxing.Vector Int -> Int
-sum vec = getSum $ ofold (coerceVector vec :: Unboxing.Vector (Sum Int)) -- OK
+sum vec = getSum $ ofold (Unboxing.coerceVector vec :: Unboxing.Vector (Sum Int)) -- OK
 
 and :: Unboxing.Vector Bool -> Bool
-and vec = getAll $ ofold (coerceVector vec :: Unboxing.Vector All) -- fails because the data constructor is not in scope
+and vec = getAll $ ofold (Unboxing.coerceVector vec :: Unboxing.Vector All) -- fails because the data constructor is not in scope
 ```

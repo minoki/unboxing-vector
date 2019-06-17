@@ -58,14 +58,29 @@ type instance G.Mutable Vector = MVector
 
 -- | Types that can be stored in unboxed vectors ('Vector' and 'MVector').
 --
--- This class can be derived with @GeneralizedNewtypeDeriving@
--- (you may need @UndecidableInstances@ in addition).
+-- You can define instances of this class like:
+--
+-- > newtype Foo = Foo Int
+-- > instance Unboxable Foo where
+-- >   type Rep Foo = Int
+--
+-- The type specified by 'Rep' needs to be an instance of 'U.Unbox',
+-- and coercion must be possible between the two types.
+--
+-- Instances can also be derived with @GeneralizedNewtypeDeriving@.
+-- GND always works if the base type is an instance of 'Unboxable'.
+--
+-- If you want to have non-trivial correspondence between the type and the representation,
+-- use 'Generics' wrapper with @DerivingVia@.
+--
+-- Note that @UndecidableInstances@ is needed if you use GND or @DerivingVia@ to derive instances.
 class U.Unbox (Rep a) => Unboxable a where
   -- | The underlying type of @a@.  Must be an instance of 'U.Unbox'.
   type Rep a
 
   -- Hidden members:
 
+  -- Used by 'coerceVector'
   type CoercibleRep a
   type CoercibleRep a = Rep a
 
@@ -124,7 +139,13 @@ coercionWithUnboxedMVector = Coercion
 
 -- Generics
 
--- | A newtype wrapper for use with @DerivingVia@.
+-- | A newtype wrapper to be used with @DerivingVia@.
+--
+-- Usage:
+--
+-- > data Bar = Bar !Int !Int
+-- >   deriving Generic
+-- >   deriving Unboxable via Generics Bar
 newtype Generics a = Generics a
 
 instance (GHC.Generics.Generic a, Unboxable (Rep' (GHC.Generics.Rep a)), Unboxable' (GHC.Generics.Rep a)) => Unboxable (Generics a) where

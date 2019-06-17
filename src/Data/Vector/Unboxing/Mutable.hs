@@ -171,19 +171,31 @@ set :: (PrimMonad m, Unboxable a) => MVector (PrimState m) a -> a -> m ()
 set = G.set
 {-# INLINE set #-}
 
-copy :: (PrimMonad m, Unboxable a) => MVector (PrimState m) a -> MVector (PrimState m) a -> m ()
+copy :: (PrimMonad m, Unboxable a)
+     => MVector (PrimState m) a   -- ^ target
+     -> MVector (PrimState m) a   -- ^ source
+     -> m ()
 copy = G.copy
 {-# INLINE copy #-}
 
-move :: (PrimMonad m, Unboxable a) => MVector (PrimState m) a -> MVector (PrimState m) a -> m ()
+move :: (PrimMonad m, Unboxable a)
+     => MVector (PrimState m) a   -- ^ target
+     -> MVector (PrimState m) a   -- ^ source
+     -> m ()
 move = G.move
 {-# INLINE move #-}
 
-unsafeCopy :: (PrimMonad m, Unboxable a) => MVector (PrimState m) a -> MVector (PrimState m) a -> m ()
+unsafeCopy :: (PrimMonad m, Unboxable a)
+           => MVector (PrimState m) a   -- ^ target
+           -> MVector (PrimState m) a   -- ^ source
+           -> m ()
 unsafeCopy = G.unsafeCopy
 {-# INLINE unsafeCopy #-}
 
-unsafeMove :: (PrimMonad m, Unboxable a) => MVector (PrimState m) a -> MVector (PrimState m) a -> m ()
+unsafeMove :: (PrimMonad m, Unboxable a)
+           => MVector (PrimState m) a   -- ^ target
+           -> MVector (PrimState m) a   -- ^ source
+           -> m ()
 unsafeMove = G.unsafeMove
 {-# INLINE unsafeMove #-}
 
