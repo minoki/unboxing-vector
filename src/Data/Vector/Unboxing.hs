@@ -3,6 +3,7 @@ module Data.Vector.Unboxing
   (Vector
   ,Unboxable(Rep)
   ,Generics(..)
+  ,Enum(..)
   -- * Accessors
   -- ** Length information
   ,length,null
@@ -83,7 +84,8 @@ module Data.Vector.Unboxing
   ,freeze,thaw,copy,unsafeFreeze,unsafeThaw,unsafeCopy
   ) where
 
-import Prelude (Monad,Int,Bool,Maybe,Traversable,Eq,Num,Enum,Ord,Ordering)
+import Prelude (Monad,Int,Bool,Maybe,Traversable,Eq,Num,Ord,Ordering)
+import qualified Prelude
 import qualified Data.Vector.Generic as G
 import Data.Vector.Generic (convert)
 import Data.Vector.Unboxing.Internal
@@ -266,11 +268,11 @@ enumFromStepN :: (Num a, Unboxable a) => a -> a -> Int -> Vector a
 enumFromStepN = G.enumFromStepN
 {-# INLINE enumFromStepN #-}
 
-enumFromTo :: (Enum a, Unboxable a) => a -> a -> Vector a
+enumFromTo :: (Prelude.Enum a, Unboxable a) => a -> a -> Vector a
 enumFromTo = G.enumFromTo
 {-# INLINE enumFromTo #-}
 
-enumFromThenTo :: (Enum a, Unboxable a) => a -> a -> a -> Vector a
+enumFromThenTo :: (Prelude.Enum a, Unboxable a) => a -> a -> a -> Vector a
 enumFromThenTo = G.enumFromThenTo
 {-# INLINE enumFromThenTo #-}
 

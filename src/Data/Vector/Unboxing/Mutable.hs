@@ -4,6 +4,7 @@ module Data.Vector.Unboxing.Mutable
   ,STVector
   ,Unboxable(Rep)
   ,Generics(..)
+  ,Enum(..)
   -- * Accessors
   -- ** Length information
   ,length,null

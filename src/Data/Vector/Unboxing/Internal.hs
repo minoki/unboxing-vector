@@ -17,6 +17,7 @@ module Data.Vector.Unboxing.Internal
   ,Vector(UnboxingVector)
   ,MVector(UnboxingMVector)
   ,Generics(..)
+  ,Enum(..)
   ,coerceVector
   ,liftCoercion
   ,vectorCoercion
@@ -27,6 +28,8 @@ module Data.Vector.Unboxing.Internal
   ,fromUnboxedMVector
   ,coercionWithUnboxedMVector
   ) where
+import Prelude hiding (Enum)
+import qualified Prelude
 import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
 import qualified Data.Vector.Unboxed as U
@@ -189,6 +192,20 @@ instance Unboxable' (f GHC.Generics.:+: g) where
   type Rep' (f GHC.Generics.:+: g) = TypeError ('Text "Cannot derive Unboxable instance for a sum type.")
   from' = undefined
   to' = undefined
+
+-----
+
+-- Enum
+
+newtype Enum a = Enum a
+instance (Prelude.Enum a) => Unboxable (Enum a) where
+  type Rep (Enum a) = Int
+  type CoercibleRep (Enum a) = a
+  type IsTrivial (Enum a) = 'False
+  unboxingFrom (Enum x) = fromEnum x
+  {-# INLINE unboxingFrom #-}
+  unboxingTo y = Enum (toEnum y)
+  {-# INLINE unboxingTo #-}
 
 -----
 
@@ -519,3 +536,5 @@ deriving instance Unboxable Data.Monoid.Any
 deriving instance Unboxable a => Unboxable (Data.Monoid.Sum a)
 deriving instance Unboxable a => Unboxable (Data.Monoid.Product a)
 deriving instance Unboxable a => Unboxable (Data.Ord.Down a)
+
+-- Add instance for Ordering?
