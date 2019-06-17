@@ -151,13 +151,13 @@ coercionWithUnboxedMVector = Coercion
 -- >   deriving Unboxable via Generics Bar
 newtype Generics a = Generics a
 
-instance (GHC.Generics.Generic a, Unboxable (Rep' (GHC.Generics.Rep a)), Unboxable' (GHC.Generics.Rep a)) => Unboxable (Generics a) where
-  type Rep (Generics a) = Rep (Rep' (GHC.Generics.Rep a))
+instance (GHC.Generics.Generic a, U.Unbox (Rep' (GHC.Generics.Rep a)), Unboxable' (GHC.Generics.Rep a)) => Unboxable (Generics a) where
+  type Rep (Generics a) = Rep' (GHC.Generics.Rep a)
   type CoercibleRep (Generics a) = a
   type IsTrivial (Generics a) = 'False
-  unboxingFrom (Generics x) = unboxingFrom (from' (GHC.Generics.from x))
+  unboxingFrom (Generics x) = from' (GHC.Generics.from x)
   {-# INLINE unboxingFrom #-}
-  unboxingTo y = Generics (GHC.Generics.to (to' (unboxingTo y)))
+  unboxingTo y = Generics (GHC.Generics.to (to' y))
   {-# INLINE unboxingTo #-}
 
 class Unboxable' f where
