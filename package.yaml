@@ -34,7 +34,7 @@ library:
   other-modules:
   - Data.Vector.Unboxing.Internal
 
-executables:
+benchmarks:
   unboxing-vector-benchmark:
     main:                Bench.hs
     source-dirs:         benchmark
