@@ -11,7 +11,6 @@ import Data.MonoTraversable (ofold)
 ---
 import TestTypeErrors
 import Foo (Foo,mkFoo)
-import Generic
 
 testInt = TestCase $ do
   let v = V.fromList [2,-5,42] :: V.Vector Int
@@ -65,10 +64,7 @@ tests = TestList [TestLabel "Basic features" testIntMod17
                  ,TestLabel "Conversion with Data.Vector.Unboxed" testInt
                  ,TestLabel "Test with abstract type" testAbstractType
                  ,TestLabel "Check for type errors" testTypeErrors
-                 ,TestLabel "Test with generic 1" testComplexDouble
-                 ,TestLabel "Test with generic 2" testBar
                  ,TestLabel "Test with GND" testBaz
                  ]
 
 main = runTestTT tests
-

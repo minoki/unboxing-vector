@@ -53,3 +53,20 @@ tests:
     - unboxing-vector
     - HUnit
     - should-not-typecheck
+
+  unboxing-vector-test-deriving-via:
+    main:                Spec.hs
+    source-dirs:         test-deriving-via
+    ghc-options:
+    - -Wno-missing-signatures
+    dependencies:
+    - unboxing-vector
+    - HUnit
+    - should-not-typecheck
+    other-extensions: DerivingVia
+    when:
+    - condition: impl(ghc >= 8.6.1)
+      then:
+        buildable: True
+      else:
+        buildable: False
