@@ -1,5 +1,7 @@
 # unboxing-vector
 
+[![Build Status](https://travis-ci.org/minoki/unboxing-vector.svg?branch=master)](https://travis-ci.org/minoki/unboxing-vector)
+
 This package provides newtype-friendly wrappers for `Data.Vector.Unboxed` in [`vector` package](http://hackage.haskell.org/package/vector).
 
 ## Description
