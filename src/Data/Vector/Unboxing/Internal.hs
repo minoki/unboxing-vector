@@ -240,15 +240,15 @@ instance (Read a, Unboxable a) => Read (Vector a) where
   {-# INLINE readPrec #-}
   {-# INLINE readListPrec #-}
 
-instance (Unboxable a) => Semigroup (Vector a) where
+instance (Unboxable a) => Data.Semigroup.Semigroup (Vector a) where
   (<>) = (G.++)
   sconcat = G.concatNE
   {-# INLINE (<>) #-}
   {-# INLINE sconcat #-}
 
-instance (Unboxable a) => Monoid (Vector a) where
+instance (Unboxable a) => Data.Monoid.Monoid (Vector a) where
   mempty = G.empty
-  mappend = (<>)
+  mappend = (Data.Semigroup.<>)
   mconcat = G.concat
   {-# INLINE mempty #-}
   {-# INLINE mappend #-}
