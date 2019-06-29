@@ -5,6 +5,7 @@ module Data.Vector.Unboxing.Mutable
   ,Unboxable(Rep)
   ,Generics(..)
   ,Enum(..)
+  ,EnumRep(..)
   -- * Accessors
   -- ** Length information
   ,length,null

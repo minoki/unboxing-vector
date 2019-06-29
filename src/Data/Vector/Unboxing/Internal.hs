@@ -17,6 +17,7 @@ module Data.Vector.Unboxing.Internal
   ,MVector(UnboxingMVector)
   ,Generics(..)
   ,Enum(..)
+  ,EnumRep(..)
   ,coerceVector
   ,liftCoercion
   ,vectorCoercion
@@ -204,6 +205,16 @@ instance (Prelude.Enum a) => Unboxable (Enum a) where
   unboxingFrom (Enum x) = fromEnum x
   {-# INLINE unboxingFrom #-}
   unboxingTo y = Enum (toEnum y)
+  {-# INLINE unboxingTo #-}
+
+newtype EnumRep rep a = EnumRep a
+instance (Prelude.Enum a, Integral rep, U.Unbox rep) => Unboxable (EnumRep rep a) where
+  type Rep (EnumRep rep a) = rep
+  type CoercibleRep (EnumRep rep a) = a
+  type IsTrivial (EnumRep rep a) = 'False
+  unboxingFrom (EnumRep x) = fromIntegral (fromEnum x)
+  {-# INLINE unboxingFrom #-}
+  unboxingTo y = EnumRep (toEnum (fromIntegral y))
   {-# INLINE unboxingTo #-}
 
 -----
