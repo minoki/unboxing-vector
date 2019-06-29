@@ -6,7 +6,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -523,18 +522,106 @@ instance (Unboxable a, Unboxable b, Unboxable c, Unboxable d, Unboxable e, Unbox
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
-deriving instance Unboxable a => Unboxable (Data.Functor.Identity.Identity a)
-deriving instance Unboxable a => Unboxable (Data.Functor.Const.Const a b)
-deriving instance Unboxable a => Unboxable (Data.Semigroup.Min a)
-deriving instance Unboxable a => Unboxable (Data.Semigroup.Max a)
-deriving instance Unboxable a => Unboxable (Data.Semigroup.First a)
-deriving instance Unboxable a => Unboxable (Data.Semigroup.Last a)
-deriving instance Unboxable a => Unboxable (Data.Semigroup.WrappedMonoid a)
-deriving instance Unboxable a => Unboxable (Data.Monoid.Dual a)
-deriving instance Unboxable Data.Monoid.All
-deriving instance Unboxable Data.Monoid.Any
-deriving instance Unboxable a => Unboxable (Data.Monoid.Sum a)
-deriving instance Unboxable a => Unboxable (Data.Monoid.Product a)
-deriving instance Unboxable a => Unboxable (Data.Ord.Down a)
+{-
+GND for type classes with associated type families is not available until GHC 8.2.
+With GHC 8.2 or later, one can derive these instances like:
 
--- Add instance for Ordering?
+> deriving instance Unboxable a => Unboxable (Data.Functor.Identity.Identity a)
+> deriving instance Unboxable a => Unboxable (Data.Functor.Const.Const a b)
+> deriving instance Unboxable a => Unboxable (Data.Semigroup.Min a)
+> deriving instance Unboxable a => Unboxable (Data.Semigroup.Max a)
+> deriving instance Unboxable a => Unboxable (Data.Semigroup.First a)
+> deriving instance Unboxable a => Unboxable (Data.Semigroup.Last a)
+> deriving instance Unboxable a => Unboxable (Data.Semigroup.WrappedMonoid a)
+> deriving instance Unboxable a => Unboxable (Data.Monoid.Dual a)
+> deriving instance Unboxable Data.Monoid.All
+> deriving instance Unboxable Data.Monoid.Any
+> deriving instance Unboxable a => Unboxable (Data.Monoid.Sum a)
+> deriving instance Unboxable a => Unboxable (Data.Monoid.Product a)
+> deriving instance Unboxable a => Unboxable (Data.Ord.Down a)
+-}
+
+instance Unboxable a => Unboxable (Data.Functor.Identity.Identity a) where
+  type Rep (Data.Functor.Identity.Identity a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Functor.Const.Const a b) where
+  type Rep (Data.Functor.Const.Const a b) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Semigroup.Min a) where
+  type Rep (Data.Semigroup.Min a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Semigroup.Max a) where
+  type Rep (Data.Semigroup.Max a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Semigroup.First a) where
+  type Rep (Data.Semigroup.First a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Semigroup.Last a) where
+  type Rep (Data.Semigroup.Last a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Semigroup.WrappedMonoid a) where
+  type Rep (Data.Semigroup.WrappedMonoid a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Monoid.Dual a) where
+  type Rep (Data.Monoid.Dual a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable Data.Monoid.All where
+  type Rep Data.Monoid.All = Bool
+
+instance Unboxable Data.Monoid.Any where
+  type Rep Data.Monoid.Any = Bool
+
+instance Unboxable a => Unboxable (Data.Monoid.Sum a) where
+  type Rep (Data.Monoid.Sum a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Monoid.Product a) where
+  type Rep (Data.Monoid.Product a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable a => Unboxable (Data.Ord.Down a) where
+  type Rep (Data.Ord.Down a) = Rep a
+  unboxingFrom = coerce (unboxingFrom @a)
+  unboxingTo = coerce (unboxingTo @a)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+-- TODO: Add instance for Ordering?

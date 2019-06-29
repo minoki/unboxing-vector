@@ -54,6 +54,23 @@ tests:
     - HUnit
     - should-not-typecheck
 
+  # GND with associated type families is available since GHC 8.2
+  unboxing-vector-test-gnd:
+    main:                Spec.hs
+    source-dirs:         test-gnd
+    ghc-options:
+    - -Wno-missing-signatures
+    dependencies:
+    - unboxing-vector
+    - HUnit
+    when:
+    - condition: impl(ghc >= 8.2.1)
+      then:
+        buildable: True
+      else:
+        buildable: False
+
+  # DerivingVia is available since GHC 8.6
   unboxing-vector-test-deriving-via:
     main:                Spec.hs
     source-dirs:         test-deriving-via
@@ -63,7 +80,6 @@ tests:
     - unboxing-vector
     - HUnit
     - should-not-typecheck
-    other-extensions: DerivingVia
     when:
     - condition: impl(ghc >= 8.6.1)
       then:
