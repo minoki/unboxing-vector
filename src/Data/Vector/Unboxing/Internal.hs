@@ -624,4 +624,9 @@ instance Unboxable a => Unboxable (Data.Ord.Down a) where
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
--- TODO: Add instance for Ordering?
+instance Unboxable Ordering where
+  type Rep Ordering = Int8
+  unboxingFrom x = fromIntegral (fromEnum x)
+  unboxingTo y = toEnum (fromIntegral y)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
