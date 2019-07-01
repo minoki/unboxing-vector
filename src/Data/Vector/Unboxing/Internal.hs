@@ -138,9 +138,9 @@ coercionWithUnboxedMVector :: (Unboxable a, Rep a ~ a, IsTrivial a ~ 'True) => C
 coercionWithUnboxedMVector = Coercion
 {-# INLINE coercionWithUnboxedMVector #-}
 
------
-
+--
 -- Generics
+--
 
 -- | A newtype wrapper to be used with @DerivingVia@.
 --
@@ -193,10 +193,18 @@ instance Unboxable' (f GHC.Generics.:+: g) where
   from' = undefined
   to' = undefined
 
------
-
+--
 -- Enum
+--
 
+-- | A newtype wrapper to be used with @DerivingVia@.
+-- The value will be stored as 'Int', via `fromEnum`/`toEnum`.
+--
+-- Usage:
+--
+-- > data Direction = North | South | East | West
+-- >   deriving Enum
+-- >   deriving Data.Vector.Unboxing.Unboxable via Data.Vector.Unboxing.Enum Bar
 newtype Enum a = Enum a
 instance (Prelude.Enum a) => Unboxable (Enum a) where
   type Rep (Enum a) = Int
@@ -207,6 +215,13 @@ instance (Prelude.Enum a) => Unboxable (Enum a) where
   unboxingTo y = Enum (toEnum y)
   {-# INLINE unboxingTo #-}
 
+-- | A newtype wrapper to be used with @DerivingVia@.
+--
+-- Usage:
+--
+-- > data Direction = North | South | East | West
+-- >   deriving Enum
+-- >   deriving Data.Vector.Unboxing.Unboxable via Data.Vector.Unboxing.EnumRep Int8 Bar
 newtype EnumRep rep a = EnumRep a
 instance (Prelude.Enum a, Integral rep, U.Unbox rep) => Unboxable (EnumRep rep a) where
   type Rep (EnumRep rep a) = rep
@@ -217,9 +232,9 @@ instance (Prelude.Enum a, Integral rep, U.Unbox rep) => Unboxable (EnumRep rep a
   unboxingTo y = EnumRep (toEnum (fromIntegral y))
   {-# INLINE unboxingTo #-}
 
------
-
+--
 -- Instances
+--
 
 instance (Unboxable a) => IsList (Vector a) where
   type Item (Vector a) = a
@@ -310,9 +325,9 @@ instance (Unboxable a) => G.Vector Vector a where
   {-# INLINE basicUnsafeCopy #-}
   {-# INLINE elemseq #-}
 
------
-
+--
 -- Classes from mono-traversable
+--
 
 type instance Data.MonoTraversable.Element (Vector a) = a
 
@@ -459,9 +474,9 @@ instance (Unboxable a) => Data.Sequences.IsSequence (Vector a) where
   {-# INLINE indexEx #-}
   {-# INLINE unsafeIndex #-}
 
------
-
+--
 -- Unboxable instances
+--
 
 instance Unboxable Bool where   type Rep Bool = Bool
 instance Unboxable Char where   type Rep Char = Char

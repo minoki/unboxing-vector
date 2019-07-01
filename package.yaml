@@ -11,7 +11,7 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-synopsis:            Newtype-friendly Unboxed Vectors
+synopsis:            A newtype-friendly variant of unboxed vectors
 category:            Data, Data Structures
 
 # To avoid duplicated efforts in documentation and dealing with the
