@@ -44,6 +44,7 @@ import Data.Type.Bool
 import qualified Data.Complex
 import qualified Data.Functor.Identity
 import qualified Data.Functor.Const
+import qualified Data.Functor.Compose
 import qualified Data.Ord
 import qualified Data.Semigroup
 import qualified Data.Monoid
@@ -654,5 +655,36 @@ instance Unboxable Ordering where
   type Rep Ordering = Int8
   unboxingFrom x = fromIntegral (fromEnum x)
   unboxingTo y = toEnum (fromIntegral y)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance (Unboxable a, Unboxable b) => Unboxable (Data.Semigroup.Arg a b) where
+  type Rep (Data.Semigroup.Arg a b) = (Rep a, Rep b)
+  unboxingFrom (Data.Semigroup.Arg x y) = (unboxingFrom x, unboxingFrom y)
+  unboxingTo (x, y) = Data.Semigroup.Arg (unboxingTo x) (unboxingTo y)
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+instance Unboxable (f a) => Unboxable (Data.Monoid.Alt f a) where
+  type Rep (Data.Monoid.Alt f a) = Rep (f a)
+  unboxingFrom = coerce (unboxingFrom @(f a))
+  unboxingTo = coerce (unboxingTo @(f a))
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+
+{-
+-- Since base-4.12.0.0
+instance Unboxable (f a) => Unboxable (Data.Monoid.Ap f a) where
+  type Rep (Data.Monoid.Ap f a) = Rep (f a)
+  unboxingFrom = coerce (unboxingFrom @(f a))
+  unboxingTo = coerce (unboxingTo @(f a))
+  {-# INLINE unboxingFrom #-}
+  {-# INLINE unboxingTo #-}
+-}
+
+instance Unboxable (f (g a)) => Unboxable (Data.Functor.Compose.Compose f g a) where
+  type Rep (Data.Functor.Compose.Compose f g a) = Rep (f (g a))
+  unboxingFrom = coerce (unboxingFrom @(f (g a)))
+  unboxingTo = coerce (unboxingTo @(f (g a)))
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
