@@ -6,7 +6,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -570,57 +569,57 @@ With GHC 8.2 or later, one can derive these instances like:
 
 instance Unboxable a => Unboxable (Data.Functor.Identity.Identity a) where
   type Rep (Data.Functor.Identity.Identity a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Functor.Identity.runIdentity
+  unboxingTo = Data.Functor.Identity.Identity #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Functor.Const.Const a b) where
   type Rep (Data.Functor.Const.Const a b) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Functor.Const.getConst
+  unboxingTo = Data.Functor.Const.Const #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Semigroup.Min a) where
   type Rep (Data.Semigroup.Min a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Semigroup.getMin
+  unboxingTo = Data.Semigroup.Min #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Semigroup.Max a) where
   type Rep (Data.Semigroup.Max a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Semigroup.getMax
+  unboxingTo = Data.Semigroup.Max #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Semigroup.First a) where
   type Rep (Data.Semigroup.First a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Semigroup.getFirst
+  unboxingTo = Data.Semigroup.First #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Semigroup.Last a) where
   type Rep (Data.Semigroup.Last a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Semigroup.getLast
+  unboxingTo = Data.Semigroup.Last #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Semigroup.WrappedMonoid a) where
   type Rep (Data.Semigroup.WrappedMonoid a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Semigroup.unwrapMonoid
+  unboxingTo = Data.Semigroup.WrapMonoid #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Monoid.Dual a) where
   type Rep (Data.Monoid.Dual a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Monoid.getDual
+  unboxingTo = Data.Monoid.Dual #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
@@ -632,22 +631,22 @@ instance Unboxable Data.Monoid.Any where
 
 instance Unboxable a => Unboxable (Data.Monoid.Sum a) where
   type Rep (Data.Monoid.Sum a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Monoid.getSum
+  unboxingTo = Data.Monoid.Sum #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Monoid.Product a) where
   type Rep (Data.Monoid.Product a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# Data.Monoid.getProduct
+  unboxingTo = Data.Monoid.Product #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
 instance Unboxable a => Unboxable (Data.Ord.Down a) where
   type Rep (Data.Ord.Down a) = Rep a
-  unboxingFrom = coerce (unboxingFrom @a)
-  unboxingTo = coerce (unboxingTo @a)
+  unboxingFrom = unboxingFrom .# (\(Data.Ord.Down x) -> x)
+  unboxingTo = Data.Ord.Down #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
@@ -667,8 +666,8 @@ instance (Unboxable a, Unboxable b) => Unboxable (Data.Semigroup.Arg a b) where
 
 instance Unboxable (f a) => Unboxable (Data.Monoid.Alt f a) where
   type Rep (Data.Monoid.Alt f a) = Rep (f a)
-  unboxingFrom = coerce (unboxingFrom @(f a))
-  unboxingTo = coerce (unboxingTo @(f a))
+  unboxingFrom = unboxingFrom .# Data.Monoid.getAlt
+  unboxingTo = Data.Monoid.Alt #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 
@@ -676,15 +675,26 @@ instance Unboxable (f a) => Unboxable (Data.Monoid.Alt f a) where
 -- Since base-4.12.0.0
 instance Unboxable (f a) => Unboxable (Data.Monoid.Ap f a) where
   type Rep (Data.Monoid.Ap f a) = Rep (f a)
-  unboxingFrom = coerce (unboxingFrom @(f a))
-  unboxingTo = coerce (unboxingTo @(f a))
+  unboxingFrom = unboxingFrom .# Data.Monoid.getAp
+  unboxingTo = Data.Monoid.Ap #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
 -}
 
 instance Unboxable (f (g a)) => Unboxable (Data.Functor.Compose.Compose f g a) where
   type Rep (Data.Functor.Compose.Compose f g a) = Rep (f (g a))
-  unboxingFrom = coerce (unboxingFrom @(f (g a)))
-  unboxingTo = coerce (unboxingTo @(f (g a)))
+  unboxingFrom = unboxingFrom .# Data.Functor.Compose.getCompose
+  unboxingTo = Data.Functor.Compose.Compose #. unboxingTo
   {-# INLINE unboxingFrom #-}
   {-# INLINE unboxingTo #-}
+
+infixr 9 #.
+infixl 8 .#
+
+(#.) :: Coercible b c => (b -> c) -> (a -> b) -> a -> c
+_ #. f = coerce f
+{-# INLINE (#.) #-}
+
+(.#) :: Coercible a b => (b -> c) -> (a -> b) -> a -> c
+f .# _ = coerce f
+{-# INLINE (.#) #-}
