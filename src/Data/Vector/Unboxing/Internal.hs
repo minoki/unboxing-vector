@@ -23,6 +23,9 @@ module Data.Vector.Unboxing.Internal
   ,toUnboxedVector
   ,fromUnboxedVector
   ,coercionWithUnboxedVector
+  ,coerceMVector
+  ,liftCoercionM
+  ,mVectorCoercion
   ,toUnboxedMVector
   ,fromUnboxedMVector
   ,coercionWithUnboxedMVector
@@ -121,6 +124,18 @@ toUnboxedVector = coerce
 fromUnboxedVector :: (Unboxable a, Rep a ~ a, IsTrivial a ~ 'True) => U.Vector a -> Vector a
 fromUnboxedVector = coerce
 {-# INLINE fromUnboxedVector #-}
+
+coerceMVector :: (Coercible a b, Unboxable a, Unboxable b, CoercibleRep a ~ CoercibleRep b, Rep a ~ Rep b) => MVector s a -> MVector s b
+coerceMVector = coerce
+{-# INLINE coerceMVector #-}
+
+liftCoercionM :: (Unboxable a, Unboxable b, CoercibleRep a ~ CoercibleRep b, Rep a ~ Rep b) => Coercion a b -> Coercion (MVector s a) (MVector s b)
+liftCoercionM Coercion = Coercion
+{-# INLINE liftCoercionM #-}
+
+mVectorCoercion :: (Coercible a b, Unboxable a, Unboxable b, CoercibleRep a ~ CoercibleRep b, Rep a ~ Rep b) => Coercion (MVector s a) (MVector s b)
+mVectorCoercion = Coercion
+{-# INLINE mVectorCoercion #-}
 
 toUnboxedMVector :: (Unboxable a, Rep a ~ a, IsTrivial a ~ 'True) => MVector s a -> UM.MVector s a
 toUnboxedMVector = coerce

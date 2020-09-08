@@ -30,8 +30,12 @@ module Data.Vector.Unboxing.Mutable
   -- ** Filling and copying
   ,set,copy,move,unsafeCopy,unsafeMove
   -- * Conversions from/to other vector types
+  ,coerceMVector
+  ,liftCoercionM
+  ,mVectorCoercion
   ,toUnboxedMVector
   ,fromUnboxedMVector
+  ,coercionWithUnboxedMVector
   ) where
 
 import Prelude (Int,Bool,Ord)

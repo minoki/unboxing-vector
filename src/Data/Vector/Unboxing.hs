@@ -78,6 +78,7 @@ module Data.Vector.Unboxing
   ,convert -- from Data.Vector.Generic
   ,toUnboxedVector
   ,fromUnboxedVector
+  ,coercionWithUnboxedVector
   ,coerceVector
   ,liftCoercion
   ,vectorCoercion
