@@ -6,10 +6,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.2']
+        ghc: ['8.0.2', '8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.2']
         os: [ubuntu-latest]
         flags: ['', '--flag unboxing-vector:-mono-traversable']
         include:
+          - ghc: '8.0.2'
+            resolver: '--resolver=lts-9.21'
           - ghc: '8.2.2'
             resolver: '--resolver=lts-11.22'
           - ghc: '8.10.2'
