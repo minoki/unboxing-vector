@@ -54,6 +54,13 @@ benchmarks:
     - -rtsopts
     dependencies:
     - unboxing-vector
+    when:
+    # Not buildable with GHC 8.0.2, due to "panic! (the 'impossible' happened"
+    - condition: impl(ghc >= 8.2.1)
+      then:
+        buildable: True
+      else:
+        buildable: False
 
 tests:
   unboxing-vector-test:
