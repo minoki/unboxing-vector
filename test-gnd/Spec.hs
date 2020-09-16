@@ -1,13 +1,23 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE UndecidableInstances #-}
 import Prelude
 import Test.HUnit
+import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Unboxing as V
 import Data.Monoid (Sum(..))
+#if defined(ENABLE_MONO_TRAVERSABLE)
 import Data.MonoTraversable (ofold)
+#endif
 ---
 import Foo (Foo,mkFoo)
+
+#if !defined(ENABLE_MONO_TRAVERSABLE)
+-- Ad-hoc definition
+ofold :: (Monoid a, G.Vector v a) => v a -> a
+ofold = mconcat . G.toList
+#endif
 
 newtype IntMod17 = IntMod17 Int
   deriving (Eq,Show)

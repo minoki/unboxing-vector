@@ -24,7 +24,17 @@ dependencies:
 - vector
 - deepseq
 - primitive
-- mono-traversable
+
+flags:
+  mono-traversable:
+    description: "Define instances for MonoTraversable"
+    manual: True
+    default: true
+
+when:
+- condition: "flag(mono-traversable)"
+  dependencies: mono-traversable
+  cpp-options: -DENABLE_MONO_TRAVERSABLE
 
 ghc-options:
 - -Wall
@@ -33,6 +43,7 @@ library:
   source-dirs: src
   other-modules:
   - Data.Vector.Unboxing.Internal
+  - Data.Vector.Unboxing.Instances
   tested-with: GHC == 8.8.4, GHC == 8.6.5, GHC == 8.4.4, GHC == 8.2.2
 
 benchmarks:

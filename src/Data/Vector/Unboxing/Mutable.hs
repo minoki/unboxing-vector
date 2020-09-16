@@ -42,6 +42,7 @@ import Prelude (Int,Bool,Ord)
 import qualified Data.Vector.Generic.Mutable as G
 import qualified Data.Vector.Unboxed.Mutable as UM
 import Data.Vector.Unboxing.Internal
+import Data.Vector.Unboxing.Instances ()
 import Control.Monad.ST
 import Control.Monad.Primitive (PrimMonad,PrimState)
 import Data.Coerce

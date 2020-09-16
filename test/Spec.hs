@@ -1,16 +1,26 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 import Prelude
 import Test.HUnit
+import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Unboxing as V
 import qualified Data.Vector.Unboxed
 import Data.Monoid (Sum(..))
+#if defined(ENABLE_MONO_TRAVERSABLE)
 import Data.MonoTraversable (ofold)
+#endif
 ---
 import TestTypeErrors
 import Foo (Foo,mkFoo)
+
+#if !defined(ENABLE_MONO_TRAVERSABLE)
+-- Ad-hoc definition
+ofold :: (Monoid a, G.Vector v a) => v a -> a
+ofold = mconcat . G.toList
+#endif
 
 testInt = TestCase $ do
   let v = V.fromList [2,-5,42] :: V.Vector Int

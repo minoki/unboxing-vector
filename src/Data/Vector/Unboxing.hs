@@ -91,6 +91,7 @@ import qualified Prelude
 import qualified Data.Vector.Generic as G
 import Data.Vector.Generic (convert)
 import Data.Vector.Unboxing.Internal
+import Data.Vector.Unboxing.Instances ()
 import Control.Monad.ST
 import Control.Monad.Primitive (PrimMonad,PrimState)
 
