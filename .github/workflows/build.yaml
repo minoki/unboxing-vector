@@ -6,7 +6,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.0.2', '8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.2']
+        ghc: ['8.0.2', '8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.7', '9.0.2']
         os: [ubuntu-latest]
         flags: ['', '--flag unboxing-vector:-mono-traversable']
         include:
@@ -14,19 +14,27 @@ jobs:
             resolver: '--resolver=lts-9.21'
           - ghc: '8.2.2'
             resolver: '--resolver=lts-11.22'
-          - ghc: '8.10.2'
-            resolver: '--resolver=nightly'
+          - ghc: '8.4.4'
+            resolver: '--resolver=lts-12.26'
+          - ghc: '8.6.5'
+            resolver: '--resolver=lts-14.27'
+          - ghc: '8.8.4'
+            resolver: '--resolver=lts-16.31'
+          - ghc: '8.10.7'
+            resolver: '--resolver=lts-18.28'
+          - ghc: '9.0.2'
+            resolver: '--resolver=lts-19.22'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-haskell@v1.1
+      - uses: haskell/actions/setup@v2
         name: Setup Haskell
         with:
           ghc-version: ${{ matrix.ghc }}
           enable-stack: true
           stack-version: 'latest'
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v3
         name: Cache ~/.stack
         with:
           path: ~/.stack
