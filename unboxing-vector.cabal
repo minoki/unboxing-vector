@@ -1,9 +1,5 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
---
--- see: https://github.com/sol/hpack
-
 name:           unboxing-vector
 version:        0.2.0.0
 synopsis:       A newtype-friendly variant of unboxed vectors
@@ -40,11 +36,12 @@ library
   hs-source-dirs:
       src
   ghc-options: -Wall
+  -- Data.Semigroup is available since 4.9.0.0
   build-depends:
       base >=4.9 && <5
     , deepseq
     , primitive
-    , vector
+    , vector >=0.12 && <0.14
   if flag(mono-traversable)
     cpp-options: -DENABLE_MONO_TRAVERSABLE
     build-depends:
@@ -57,7 +54,6 @@ test-suite unboxing-vector-test
   other-modules:
       Foo
       TestTypeErrors
-      Paths_unboxing_vector
   hs-source-dirs:
       test
   ghc-options: -Wall -Wno-missing-signatures
@@ -75,6 +71,7 @@ test-suite unboxing-vector-test
         mono-traversable
   default-language: Haskell2010
 
+-- DerivingVia is available since GHC 8.6
 test-suite unboxing-vector-test-deriving-via
   type: exitcode-stdio-1.0
   main-is: Spec.hs
@@ -83,7 +80,6 @@ test-suite unboxing-vector-test-deriving-via
       Foo
       Generic
       TestTypeErrors
-      Paths_unboxing_vector
   hs-source-dirs:
       test-deriving-via
   ghc-options: -Wall -Wno-missing-signatures
@@ -105,12 +101,12 @@ test-suite unboxing-vector-test-deriving-via
     buildable: False
   default-language: Haskell2010
 
+-- GND with associated type families is available since GHC 8.2
 test-suite unboxing-vector-test-gnd
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
       Foo
-      Paths_unboxing_vector
   hs-source-dirs:
       test-gnd
   ghc-options: -Wall -Wno-missing-signatures
@@ -136,7 +132,6 @@ benchmark unboxing-vector-benchmark
   main-is: Bench.hs
   other-modules:
       Poly
-      Paths_unboxing_vector
   hs-source-dirs:
       benchmark
   ghc-options: -Wall -rtsopts
@@ -150,6 +145,7 @@ benchmark unboxing-vector-benchmark
     cpp-options: -DENABLE_MONO_TRAVERSABLE
     build-depends:
         mono-traversable
+  -- Not buildable with GHC 8.0.2, due to "panic! (the 'impossible' happened)"
   if impl(ghc >= 8.2.1)
     buildable: True
   else
