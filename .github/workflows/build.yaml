@@ -6,24 +6,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.0.2', '8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.7', '9.0.2']
+        ghc: ['8.0.2', '8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2', '9.4']
         os: [ubuntu-latest]
-        flags: ['', '--flag unboxing-vector:-mono-traversable']
-        include:
-          - ghc: '8.0.2'
-            resolver: '--resolver=lts-9.21'
-          - ghc: '8.2.2'
-            resolver: '--resolver=lts-11.22'
-          - ghc: '8.4.4'
-            resolver: '--resolver=lts-12.26'
-          - ghc: '8.6.5'
-            resolver: '--resolver=lts-14.27'
-          - ghc: '8.8.4'
-            resolver: '--resolver=lts-16.31'
+        flags: ['', '--flags=-mono-traversable']
+        vector-version: ['0.12.0.*', '0.12.*', '0.13.*']
+        exclude:
           - ghc: '8.10.7'
-            resolver: '--resolver=lts-18.28'
+            vector-version: '0.12.0.*'
           - ghc: '9.0.2'
-            resolver: '--resolver=lts-19.22'
+            vector-version: '0.12.0.*'
+          - ghc: '9.2'
+            vector-version: '0.12.0.*'
+          - ghc: '9.4'
+            vector-version: '0.12.0.*'
     steps:
       - uses: actions/checkout@v3
 
@@ -31,17 +26,16 @@ jobs:
         name: Setup Haskell
         with:
           ghc-version: ${{ matrix.ghc }}
-          enable-stack: true
-          stack-version: 'latest'
 
       - uses: actions/cache@v3
-        name: Cache ~/.stack
         with:
-          path: ~/.stack
-          key: ${{ runner.os }}-${{ matrix.ghc }}-stack
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-${{ matrix.ghc }}
 
       - name: Build
-        run: stack build unboxing-vector --system-ghc --compiler=ghc-${{ matrix.ghc }} ${{ matrix.resolver }} --ghc-options=-fno-ignore-asserts --test --no-run-tests --bench --no-run-benchmarks ${{ matrix.flags }}
+        run: cabal build unboxing-vector --ghc-options=-fno-ignore-asserts --enable-tests --enable-benchmarks --constraint="vector==${{ matrix.vector-version }}" ${{ matrix.flags }}
 
       - name: Test
-        run: stack test unboxing-vector --system-ghc --compiler=ghc-${{ matrix.ghc }} ${{ matrix.resolver }} ${{ matrix.flags }}
+        run: cabal test --ghc-options=-fno-ignore-asserts --constraint="vector==${{ matrix.vector-version }}" ${{ matrix.flags }}
